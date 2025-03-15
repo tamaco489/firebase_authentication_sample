@@ -35,3 +35,13 @@ build: deps
 
 run: build
 	./build/core_api
+
+
+# =================================================================
+# apiリクエストする時用のやつ（dev）
+# =================================================================
+.PHONY: healthcheck
+healthcheck:
+	curl -X 'GET' \
+		'http://localhost:8080/core/v1/healthcheck' \
+		-H 'accept: application/json'
