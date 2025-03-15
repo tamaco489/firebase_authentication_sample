@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, onAuthStateChanged, User  } from '@firebase/auth';
+import { getAuth, onAuthStateChanged, signOut, User } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 
@@ -16,14 +16,24 @@ const Header = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       if (authUser) {
-        setUser(authUser); // 認証済みユーザー
+        setUser(authUser);
       } else {
-        setUser(null); // 未認証ユーザー
+        setUser(null);
       }
     });
 
-    return () => unsubscribe(); // クリーンアップ関数
+    return () => unsubscribe();
   }, []);
+
+  const handleSignOut = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      router.push('/'); // サインアウト成功後に '/' へ遷移
+    } catch (error) {
+      console.error('サインアウトエラー:', error);
+    }
+  };
 
   return (
     <header
@@ -100,6 +110,31 @@ const Header = () => {
                 新規登録
               </button>
             </>
+          )}
+
+          {/* 認証済みの場合のみ表示 */}
+          {user && (
+            <button
+              style={{
+                backgroundColor: '#f44336',
+                border: 'none',
+                color: 'white',
+                padding: '10px 20px',
+                textAlign: 'center',
+                textDecoration: 'none',
+                display: 'inline-block',
+                fontSize: '1em',
+                margin: '4px 2px',
+                cursor: 'pointer',
+                borderRadius: '5px',
+                transition: 'background-color 0.3s ease',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#d32f2f')}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f44336')}
+              onClick={handleSignOut}
+            >
+              サインアウト
+            </button>
           )}
         </div>
       </nav>
