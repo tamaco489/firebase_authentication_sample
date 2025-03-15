@@ -26,6 +26,7 @@ const Header = () => {
           cursor: 'pointer'
         }} onClick={() => router.push('/')}>Game Title</h1>
         <div>
+          {/* ログインボタン */}
           <button style={{
             backgroundColor: '#4CAF50',
             border: 'none',
@@ -39,7 +40,11 @@ const Header = () => {
             cursor: 'pointer',
             borderRadius: '5px',
             transition: 'background-color 0.3s ease',
-          }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3e8e41'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'} onClick={() => router.push('/sign_in')}>ログイン</button>
+          }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3e8e41'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+            onClick={() => router.push('/sign_in')}>ログイン</button>
+
+          {/* 新規登録ボタン */}
           <button style={{
             backgroundColor: '#008CBA',
             border: 'none',
@@ -53,7 +58,9 @@ const Header = () => {
             cursor: 'pointer',
             borderRadius: '5px',
             transition: 'background-color 0.3s ease',
-          }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0077b5'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#008CBA'} onClick={() => router.push('/sign_up')}>新規登録</button>
+          }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0077b5'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#008CBA'}
+            onClick={() => router.push('/sign_up')}>新規登録</button>
         </div>
       </nav>
     </header>
