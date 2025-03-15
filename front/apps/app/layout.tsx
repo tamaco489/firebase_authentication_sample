@@ -21,7 +21,10 @@ export default function RootLayout({
         <QueryProvider>
           <FirebaseAuthProvider>
             <Header />
-            {children}
+            {/* フッターの高さに合わせて調整 */}
+            <div style={{ paddingBottom: '60px' }}>
+              {children}
+            </div>
           </FirebaseAuthProvider>
         </QueryProvider>
         <Footer />
