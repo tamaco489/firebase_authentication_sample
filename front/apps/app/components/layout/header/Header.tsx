@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { getAuth, onAuthStateChanged,  User } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
-import SignOut from '@/features/auth/signout';
+import useSignOut from '@/features/auth/signout';
 import SignInButton from '@/app/components/auth/SignInButton';
 import SignUpButton from '@/app/components/auth/SignUpButton';
+import SignOutButton from '@/app/components/auth/SignOutButton';
 
 const Header = () => {
   const router = useRouter();
@@ -28,6 +29,8 @@ const Header = () => {
     return () => unsubscribe();
   }, []);
 
+  const { handleSignOut } = useSignOut(); // handleSignOut を取得
+
   return (
     <header
       style={{
@@ -45,14 +48,7 @@ const Header = () => {
       }}
     >
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1
-          style={{
-            margin: 0,
-            fontSize: '2em',
-            cursor: 'pointer',
-          }}
-          onClick={() => router.push('/')}
-        >
+        <h1 style={{margin: 0, fontSize: '2em', cursor: 'pointer'}} onClick={() => router.push('/')}>
           Game Title
         </h1>
         <div>
@@ -65,7 +61,7 @@ const Header = () => {
           )}
 
           {/* 認証済みの場合のみ表示 */}
-          {user && <SignOut />}
+          {user && <SignOutButton onClick={handleSignOut} />}
         </div>
       </nav>
     </header>

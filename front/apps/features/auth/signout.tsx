@@ -2,13 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { getAuth, signOut } from '@firebase/auth';
-import SignOutButton from '@/app/components/auth/SignOutButton';
+import { initializeApp } from '@firebase/app';
+import { FIREBASE_CONFIG } from '@/constants/auth';
 
-const SignOut = () => {
+const useSignOut = () => {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    const auth = getAuth();
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
     try {
       await signOut(auth);
       router.push('/'); // サインアウト成功後に '/' へ遷移
@@ -18,7 +20,7 @@ const SignOut = () => {
     }
   };
 
-  return <SignOutButton onClick={handleSignOut} />;
+  return { handleSignOut };
 };
 
-export default SignOut;
+export default useSignOut;

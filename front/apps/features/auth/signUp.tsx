@@ -6,13 +6,13 @@ import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 import { useRouter } from 'next/navigation';
 
-const SignUp = () => {
+const useSignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -45,7 +45,7 @@ const SignUp = () => {
       }}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSignUp}
         style={{
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
           padding: '20px',
@@ -106,4 +106,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default useSignUp;
