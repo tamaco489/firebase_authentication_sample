@@ -1,4 +1,4 @@
-module github.com/tamaco489/async_serverless_application_sample/api/core
+module github.com/tamaco489/firebase_authentication_sample/api/core
 
 go 1.23.5
 
