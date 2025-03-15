@@ -2,9 +2,7 @@
 
 import { useAuth } from '@/app/components/layout/providers/FirebaseAuth';
 import { useRouter } from 'next/navigation';
-import { FirebaseAuthProvider } from '@/app/components/layout/providers/FirebaseAuth';
 import { useEffect } from 'react';
-import Header from '@/app/components/layout/header/Header';
 
 function Home() {
   const { user, isLoading, isError } = useAuth();
@@ -37,7 +35,6 @@ function Home() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <Header />
       <main className="text-4xl font-bold">
         Firebase Authentication sample by Next.js
       </main>
@@ -45,10 +42,4 @@ function Home() {
   );
 }
 
-export default function HomePage() {
-  return (
-    <FirebaseAuthProvider>
-      <Home />
-    </FirebaseAuthProvider>
-  );
-};
+export default Home;

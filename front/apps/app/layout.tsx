@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./styles/globals.css";
 import QueryProvider from "@/app/components/layout/providers/QueryProvider"
+import { FirebaseAuthProvider } from '@/app/components/layout/providers/FirebaseAuth';
+import Header from '@/app/components/layout/header/Header';
 import Footer from "./components/layout/footer/Footer";
 
 export const metadata: Metadata = {
@@ -17,9 +19,12 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <QueryProvider>
-          {children}
-          <Footer />
+          <FirebaseAuthProvider>
+            <Header />
+            {children}
+          </FirebaseAuthProvider>
         </QueryProvider>
+        <Footer />
       </body>
     </html>
   );
