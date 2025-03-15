@@ -1,0 +1,13 @@
+services:
+  core-api:
+    platform: linux/amd64
+    image: cosmtrek/air:v1.61.7
+    container_name: core-api
+    working_dir: /go/src/github.com/tamaco489/firebase_authentication_sample/api/core
+    volumes:
+      - ./core:/go/src/github.com/tamaco489/firebase_authentication_sample/api/core
+      - ~/.cache/go-build:/root/.cache/go-build
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./core/.env
