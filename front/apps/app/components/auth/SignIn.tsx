@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { getAuth, signInWithEmailAndPassword } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
+import { useRouter } from 'next/navigation';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +20,9 @@ const SignIn = () => {
       const app = initializeApp(FIREBASE_CONFIG);
       const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
+
+      // サインイン成功後に '/' へ遷移
+      router.push('/');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
