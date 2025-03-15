@@ -1,6 +1,6 @@
 'use client';
 
-import SignUp from '@/app/components/auth/SignUp';
+import SignUp from '@/features/auth/signUp';
 
 const SignUpPage = () => {
   return <SignUp />;

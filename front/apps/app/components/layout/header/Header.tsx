@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, onAuthStateChanged, signOut, User } from '@firebase/auth';
+import { getAuth, onAuthStateChanged,  User } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
+import SignOut from '@/features/auth/signout';
 
 const Header = () => {
   const router = useRouter();
@@ -24,16 +25,6 @@ const Header = () => {
 
     return () => unsubscribe();
   }, []);
-
-  const handleSignOut = async () => {
-    const auth = getAuth();
-    try {
-      await signOut(auth);
-      router.push('/'); // サインアウト成功後に '/' へ遷移
-    } catch (error) {
-      console.error('サインアウトエラー:', error);
-    }
-  };
 
   return (
     <header
@@ -113,29 +104,7 @@ const Header = () => {
           )}
 
           {/* 認証済みの場合のみ表示 */}
-          {user && (
-            <button
-              style={{
-                backgroundColor: '#f44336',
-                border: 'none',
-                color: 'white',
-                padding: '10px 20px',
-                textAlign: 'center',
-                textDecoration: 'none',
-                display: 'inline-block',
-                fontSize: '1em',
-                margin: '4px 2px',
-                cursor: 'pointer',
-                borderRadius: '5px',
-                transition: 'background-color 0.3s ease',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#d32f2f')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f44336')}
-              onClick={handleSignOut}
-            >
-              サインアウト
-            </button>
-          )}
+          {user && <SignOut />}
         </div>
       </nav>
     </header>

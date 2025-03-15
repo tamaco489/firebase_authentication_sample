@@ -1,6 +1,6 @@
 'use client';
 
-import SignIn from '@/app/components/auth/SignIn';
+import SignIn from '@/features/auth/signIn';
 
 const SignInPage = () => {
   return <SignIn />;
