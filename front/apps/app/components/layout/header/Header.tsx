@@ -17,10 +17,14 @@ const Header = () => {
       padding: '20px',
       color: 'white',
       fontFamily: 'Pixelify Sans, sans-serif',
-      zIndex: 100, // 他の要素よりも前面に表示
+      zIndex: 100,
     }}>
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '2em' }}>Game Title</h1>
+        <h1 style={{
+          margin: 0,
+          fontSize: '2em',
+          cursor: 'pointer'
+        }} onClick={() => router.push('/')}>Game Title</h1>
         <div>
           <button style={{
             backgroundColor: '#4CAF50',
