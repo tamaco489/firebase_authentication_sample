@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { FirebaseAuthProvider } from '@/app/components/layout/providers/FirebaseAuth';
 import { useState, useEffect } from 'react';
 import SignIn from '@/app/components/auth/SignIn';
+import SignUp from './components/auth/SignUp';
 
 function Home() {
   const { user, isLoading, isError } = useAuth();
   const router = useRouter();
   const [showSignIn, setShowSignIn] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -17,6 +19,7 @@ function Home() {
       setShowSignIn(true);
     } else {
       setShowSignIn(false);
+      setShowSignUp(false);
     }
   }, [user, isLoading, router]);
 
@@ -29,7 +32,27 @@ function Home() {
   }
 
   if (showSignIn) {
-    return <SignIn />;
+    return (
+      <div>
+        <SignIn />
+        <button onClick={() => {
+          setShowSignIn(false);
+          setShowSignUp(true);
+        }}>新規登録はこちら</button>
+      </div>
+    );
+  }
+
+  if (showSignUp) {
+    return (
+      <div>
+        <SignUp />
+        <button onClick={() => {
+          setShowSignUp(false);
+          setShowSignIn(true);
+        }}>ログインはこちら</button>
+      </div>
+    );
   }
 
   return (
