@@ -1,4 +1,8 @@
-export default function Home() {
+'use client';
+
+import { FirebaseAuthProvider } from '@/app/components/layout/providers/FirebaseAuth';
+
+function Home() {
   return (
     <div className="flex items-center justify-center h-screen">
       <main className="text-4xl font-bold">
@@ -9,3 +13,11 @@ export default function Home() {
     </div>
   );
 }
+
+export default function HomePage() {
+  return (
+    <FirebaseAuthProvider>
+      <Home />
+    </FirebaseAuthProvider>
+  );
+};
