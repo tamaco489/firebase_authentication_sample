@@ -20,9 +20,7 @@ const SignIn = () => {
       const app = initializeApp(FIREBASE_CONFIG);
       const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
-
-      // サインイン成功後に '/' へ遷移
-      router.push('/');
+      router.push('/'); // サインイン成功後に '/' へ遷移
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
