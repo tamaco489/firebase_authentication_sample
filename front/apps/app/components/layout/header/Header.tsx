@@ -7,18 +7,23 @@ const Header = () => {
 
   return (
     <header style={{
+      position: 'fixed', // ヘッダーを固定
+      top: 0,
+      left: 0,
+      width: '100%',
       backgroundImage: 'url(/images/header-bg.jpg)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       padding: '20px',
       color: 'white',
       fontFamily: 'Pixelify Sans, sans-serif',
+      zIndex: 100, // 他の要素よりも前面に表示
     }}>
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ margin: 0, fontSize: '2em' }}>Game Title</h1>
         <div>
           <button style={{
-            backgroundColor: '#4CAF50', // ボタンの色
+            backgroundColor: '#4CAF50',
             border: 'none',
             color: 'white',
             padding: '10px 20px',
@@ -32,7 +37,7 @@ const Header = () => {
             transition: 'background-color 0.3s ease',
           }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3e8e41'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'} onClick={() => router.push('/sign_in')}>ログイン</button>
           <button style={{
-            backgroundColor: '#008CBA', // ボタンの色
+            backgroundColor: '#008CBA',
             border: 'none',
             color: 'white',
             padding: '10px 20px',
