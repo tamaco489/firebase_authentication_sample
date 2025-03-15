@@ -6,6 +6,8 @@ import { getAuth, onAuthStateChanged,  User } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 import SignOut from '@/features/auth/signout';
+import SignInButton from '@/app/components/auth/SignInButton';
+import SignUpButton from '@/app/components/auth/SignUpButton';
 
 const Header = () => {
   const router = useRouter();
@@ -57,49 +59,8 @@ const Header = () => {
           {/* 認証されていない場合のみ表示 */}
           {!user && (
             <>
-              <button
-                style={{
-                  backgroundColor: '#4CAF50',
-                  border: 'none',
-                  color: 'white',
-                  padding: '10px 20px',
-                  textAlign: 'center',
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                  fontSize: '1em',
-                  margin: '4px 2px',
-                  cursor: 'pointer',
-                  borderRadius: '5px',
-                  transition: 'background-color 0.3s ease',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#3e8e41')}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#4CAF50')}
-                onClick={() => router.push('/sign_in')}
-              >
-                ログイン
-              </button>
-
-              <button
-                style={{
-                  backgroundColor: '#008CBA',
-                  border: 'none',
-                  color: 'white',
-                  padding: '10px 20px',
-                  textAlign: 'center',
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                  fontSize: '1em',
-                  margin: '4px 2px',
-                  cursor: 'pointer',
-                  borderRadius: '5px',
-                  transition: 'background-color 0.3s ease',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#0077b5')}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#008CBA')}
-                onClick={() => router.push('/sign_up')}
-              >
-                新規登録
-              </button>
+              <SignInButton onClick={() => router.push('/sign_in')} />
+              <SignUpButton onClick={() => router.push('sign_up') } />
             </>
           )}
 
