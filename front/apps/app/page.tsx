@@ -10,8 +10,8 @@ function Home() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      // ログイン済みの場合はリダイレクト
-      router.push('/'); // ログイン後のページにリダイレクト
+      // ログイン済みの場合はページトップにリダイレクトさせる
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -26,8 +26,9 @@ function Home() {
   if (user) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <main className="text-4xl font-bold">
-          {user ? `Welcome, ${user.displayName}!` : 'Firebase Authentication sample by Next.js'}
+        <main className="text-2xl font-bold">
+          {/* 検証のため一時的にfirebase側で発行したユニークなIDを表示する。これをAPI Requestのヘッダーに詰めてバックエンドに渡す */}
+          {user ? `provider_id: ${user.uid}` : 'Firebase Authentication sample by Next.js'}
         </main>
       </div>
     );
