@@ -6,6 +6,7 @@ import { initializeApp } from '@firebase/app';
 import { getAuth, onAuthStateChanged, User } from '@firebase/auth';
 import { FIREBASE_CONFIG } from "@/constants/auth";
 
+// Firebase Authentication の認証状態をアプリケーション全体で管理するための基盤となるコンポーネント
 
 // Firebase Authenticationのコンテキスト型
 interface AuthContextType {
