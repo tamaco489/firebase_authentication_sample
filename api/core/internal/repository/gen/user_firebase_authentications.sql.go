@@ -24,7 +24,7 @@ type CreateUserFirebaseAuthenticationParams struct {
 	Uid string `json:"uid"`
 }
 
-// ユーザーを作成するクエリ
+// Firebase Authentication で認証したユーザを作成する
 //
 //	INSERT INTO `user_firebase_authentications` (
 //	  `id`,

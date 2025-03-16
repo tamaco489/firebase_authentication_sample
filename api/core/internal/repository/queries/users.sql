@@ -1,4 +1,4 @@
--- ユーザーを作成するクエリ
+-- ユーザーを作成する
 -- name: CreateUser :exec
 INSERT INTO `users` (
   `id`,

@@ -37,7 +37,7 @@ type CreateUserParams struct {
 	LastLoginAt sql.NullTime `json:"last_login_at"`
 }
 
-// ユーザーを作成するクエリ
+// ユーザーを作成する
 //
 //	INSERT INTO `users` (
 //	  `id`,

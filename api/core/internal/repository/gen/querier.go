@@ -9,7 +9,7 @@ import (
 )
 
 type Querier interface {
-	// ユーザーを作成するクエリ
+	// ユーザーを作成する
 	//
 	//  INSERT INTO `users` (
 	//    `id`,
@@ -27,7 +27,7 @@ type Querier interface {
 	//    ?
 	//  )
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) error
-	// ユーザーを作成するクエリ
+	// Firebase Authentication で認証したユーザを作成する
 	//
 	//  INSERT INTO `user_firebase_authentications` (
 	//    `id`,

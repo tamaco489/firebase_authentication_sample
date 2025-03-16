@@ -1,4 +1,4 @@
--- ユーザーを作成するクエリ
+-- Firebase Authentication で認証したユーザを作成する
 -- name: CreateUserFirebaseAuthentication :exec
 INSERT INTO `user_firebase_authentications` (
   `id`,
