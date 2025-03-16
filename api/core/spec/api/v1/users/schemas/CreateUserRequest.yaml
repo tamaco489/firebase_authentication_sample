@@ -1,0 +1,14 @@
+type: object
+required:
+  - provider_type
+properties:
+  provider_type:
+    type: string
+    description: 外部認証サービスの種別
+    enum:
+      - firebase
+      - auth0
+      - github
+      - line
+      - other
+    example: firebase
