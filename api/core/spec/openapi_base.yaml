@@ -43,5 +43,5 @@ paths:
   # ユーザ系API
   /v1/users:
     $ref: './api/v1/users/paths/User.yaml'
-  # /v1/users/me:
-    # $ref: './api/v1/users/paths/Me.yaml'
+  /v1/users/me:
+    $ref: './api/v1/users/paths/Me.yaml'

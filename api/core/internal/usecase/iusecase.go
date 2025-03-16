@@ -9,6 +9,7 @@ type userUseCase struct{}
 
 type IUserUseCase interface {
 	CreateUser(ctx *gin.Context, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error)
+	GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error)
 }
 
 var _ IUserUseCase = (*userUseCase)(nil)

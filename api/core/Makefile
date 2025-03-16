@@ -54,9 +54,17 @@ logs:
 # =================================================================
 # apiリクエストする時用のやつ（dev）
 # =================================================================
-.PHONY: healthcheck create-user
+.PHONY: api-all-request
+sleep:
+	@sleep 0.5
+
+api-all-request: healthcheck sleep \
+	create-user sleep \
+	get-me sleep
+
+.PHONY: healthcheck create-user get-me
 healthcheck:
-	curl -X 'GET' \
+	curl -i -X 'GET' \
 		'http://localhost:8080/core/v1/healthcheck' \
 		-H 'accept: application/json'
 
@@ -66,3 +74,8 @@ create-user:
 		-H 'accept: application/json' \
 		-H 'Content-Type: application/json' \
 		-d '{"provider_type": "firebase"}'
+
+get-me:
+	curl -i -X 'GET' \
+		'http://localhost:8080/core/v1/users/me' \
+		-H 'accept: application/json'

@@ -20,6 +20,9 @@ type ServerInterface interface {
 	// ユーザの新規登録API
 	// (POST /v1/users)
 	CreateUser(c *gin.Context)
+	// 自身のユーザ情報取得API
+	// (GET /v1/users/me)
+	GetMe(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -59,6 +62,21 @@ func (siw *ServerInterfaceWrapper) CreateUser(c *gin.Context) {
 	siw.Handler.CreateUser(c)
 }
 
+// GetMe operation middleware
+func (siw *ServerInterfaceWrapper) GetMe(c *gin.Context) {
+
+	c.Set(BearerAuthScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetMe(c)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -88,6 +106,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 
 	router.GET(options.BaseURL+"/v1/healthcheck", wrapper.Healthcheck)
 	router.POST(options.BaseURL+"/v1/users", wrapper.CreateUser)
+	router.GET(options.BaseURL+"/v1/users/me", wrapper.GetMe)
 }
 
 type AlreadyExistsResponse struct {
@@ -97,6 +116,9 @@ type BadRequestResponse struct {
 }
 
 type InternalServerErrorResponse struct {
+}
+
+type NotFoundResponse struct {
 }
 
 type UnauthorizedResponse struct {
@@ -163,6 +185,43 @@ func (response CreateUser500Response) VisitCreateUserResponse(w http.ResponseWri
 	return nil
 }
 
+type GetMeRequestObject struct {
+}
+
+type GetMeResponseObject interface {
+	VisitGetMeResponse(w http.ResponseWriter) error
+}
+
+type GetMe200JSONResponse Me
+
+func (response GetMe200JSONResponse) VisitGetMeResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetMe401Response = UnauthorizedResponse
+
+func (response GetMe401Response) VisitGetMeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GetMe404Response = NotFoundResponse
+
+func (response GetMe404Response) VisitGetMeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GetMe500Response = InternalServerErrorResponse
+
+func (response GetMe500Response) VisitGetMeResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// ヘルスチェックAPI
@@ -171,6 +230,9 @@ type StrictServerInterface interface {
 	// ユーザの新規登録API
 	// (POST /v1/users)
 	CreateUser(ctx *gin.Context, request CreateUserRequestObject) (CreateUserResponseObject, error)
+	// 自身のユーザ情報取得API
+	// (GET /v1/users/me)
+	GetMe(ctx *gin.Context, request GetMeRequestObject) (GetMeResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
@@ -236,6 +298,31 @@ func (sh *strictHandler) CreateUser(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(CreateUserResponseObject); ok {
 		if err := validResponse.VisitCreateUserResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetMe operation middleware
+func (sh *strictHandler) GetMe(ctx *gin.Context) {
+	var request GetMeRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetMe(ctx, request.(GetMeRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetMe")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetMeResponseObject); ok {
+		if err := validResponse.VisitGetMeResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

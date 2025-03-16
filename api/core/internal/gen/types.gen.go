@@ -37,5 +37,11 @@ type HealthCheck struct {
 	Message string `json:"message"`
 }
 
+// Me 自身のユーザーID取得APIのレスポンス
+type Me struct {
+	// Uid uidを返却します。
+	Uid string `json:"uid"`
+}
+
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody = CreateUserRequest
