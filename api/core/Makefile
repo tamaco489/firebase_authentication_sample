@@ -10,6 +10,7 @@ install-tools: setup-env
 	go install golang.org/x/tools/cmd/godoc@latest
 	go install github.com/rubenv/sql-migrate/...@latest
 	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+	go install go.uber.org/mock/mockgen@latest
 	npm i -g @redocly/cli@latest
 
 
@@ -26,6 +27,8 @@ bundle-openapi:
 
 gen-sqlc:
 	sqlc generate -f internal/repository/sqlc.yaml
+	mockgen -source=./internal/repository/gen_sqlc/querier.go -package mock -destination=./internal/repository/gen_mock/mock_querier.go
+	mockgen -source=./internal/repository/gen_sqlc/db.go -package mock -destination=./internal/repository/gen_mock/mock_db.go
 
 # =================================================================
 # ローカル起動する時用のやつ
