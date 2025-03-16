@@ -40,15 +40,20 @@ run: build
 # =================================================================
 # コンテナ起動する時用のやつ
 # =================================================================
+# api, mysql
 .PHONY: up down logs
 up:
-	docker compose up -d core-api
+	docker compose up -d core-api mysql
 
 down:
-	docker compose down core-api
+	docker compose down core-api mysql
 
 logs:
 	docker compose logs -f core-api
+
+.PHONY: mysql
+mysql:
+	MYSQL_ROOT_PASSWORD=password#0 docker compose exec mysql mysql -u root -ppassword#0 -h localhost -P 33306 dev_core
 
 
 # =================================================================
