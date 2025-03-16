@@ -1,16 +1,22 @@
 package controller
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
 )
 
 func (c *Controllers) CreateUser(ctx *gin.Context, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error) {
 
-	uid := "123e4567-e89b-12d3-a456-426614174000"
 	slog.InfoContext(ctx, "debug log", slog.String("provider_type", string(request.Body.ProviderType)))
 
-	return &gen.CreateUser201JSONResponse{Uid: uid}, nil
+	uuid, err := uuid.NewV7()
+	if err != nil {
+		return gen.CreateUser500Response{}, fmt.Errorf("failed to new uuid: %w", err)
+	}
+
+	return &gen.CreateUser201JSONResponse{Uid: uuid.String()}, nil
 }
