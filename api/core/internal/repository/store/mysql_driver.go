@@ -35,6 +35,7 @@ func InitDB() *sql.DB {
 }
 
 func connect() (*sql.DB, error) {
+	// NOTE: configの設定が完了したらここちゃんと設定する
 	c := mysql_driver.Config{
 		User:                 "",
 		Passwd:               "",
