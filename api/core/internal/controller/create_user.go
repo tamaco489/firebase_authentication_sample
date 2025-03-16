@@ -1,16 +1,29 @@
 package controller
 
 import (
-	"log/slog"
-
 	"github.com/gin-gonic/gin"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 func (c *Controllers) CreateUser(ctx *gin.Context, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error) {
 
-	uid := "123e4567-e89b-12d3-a456-426614174000"
-	slog.InfoContext(ctx, "debug log", slog.String("provider_type", string(request.Body.ProviderType)))
+	err := validation.ValidateStruct(request.Body,
+		validation.Field(
+			&request.Body.ProviderType,
+			validation.Required,
+		),
+	)
+	if err != nil {
+		_ = ctx.Error(err)
+		return gen.CreateUser400Response{}, nil
+	}
 
-	return &gen.CreateUser201JSONResponse{Uid: uid}, nil
+	res, err := c.userUseCase.CreateUser(ctx, request)
+	if err != nil {
+		return gen.CreateUser500Response{}, err
+	}
+
+	return res, nil
 }
