@@ -29,6 +29,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/HealthCheck'
       security: []
+  /v1/users:
+    post:
+      tags:
+        - v1
+        - users
+      summary: ユーザの新規登録API
+      description: ユーザを新規登録します。
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: ユーザの新規登録が成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/AlreadyExists'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -48,3 +77,39 @@ components:
           type: string
       example:
         message: ok
+    CreateUserRequest:
+      type: object
+      required:
+        - provider_type
+      properties:
+        provider_type:
+          type: string
+          description: 外部認証サービスの種別
+          enum:
+            - firebase
+            - auth0
+            - github
+            - line
+            - other
+          example: firebase
+    CreateUserResponse:
+      title: CreateUser
+      type: object
+      description: ユーザ新規登録APIのレスポンス
+      required:
+        - uid
+      properties:
+        uid:
+          description: uidを返却します。
+          type: string
+      example:
+        uid: 123e4567-e89b-12d3-a456-426614174000
+  responses:
+    BadRequest:
+      description: Bad Request
+    Unauthorized:
+      description: Unauthorized
+    AlreadyExists:
+      description: Already Exists
+    InternalServerError:
+      description: Internal Server Error

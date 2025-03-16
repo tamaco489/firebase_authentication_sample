@@ -1,0 +1,28 @@
+post:
+  tags:
+    - v1
+    - users
+  summary: ユーザの新規登録API
+  description: ユーザを新規登録します。
+  operationId: createUser
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/CreateUserRequest.yaml'
+  responses:
+    '201':
+      description: ユーザの新規登録が成功しました。
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/CreateUserResponse.yaml'
+    '400':
+      $ref: '../../../responses/BadRequest.yaml'
+    '401':
+      $ref: '../../../responses/Unauthorized.yaml'
+    '409':
+      $ref: '../../../responses/AlreadyExists.yaml'
+    '500':
+      $ref: '../../../responses/InternalServerError.yaml'
