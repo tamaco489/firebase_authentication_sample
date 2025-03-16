@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/oapi-codegen/runtime v1.1.1
+	go.uber.org/mock v0.5.0
 )
 
 require (
