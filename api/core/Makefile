@@ -9,9 +9,15 @@ install-tools: setup-env
 	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 	go install golang.org/x/tools/cmd/godoc@latest
 	go install github.com/rubenv/sql-migrate/...@latest
+	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+	go install go.uber.org/mock/mockgen@latest
 	npm i -g @redocly/cli@latest
 
-.PHONY: gen-api bundle-openapi
+
+# =================================================================
+# 自動生成する時用のやつ
+# =================================================================
+.PHONY: gen-api bundle-openapi gen-sqlc
 gen-api: bundle-openapi
 	oapi-codegen -package gen -generate types -o internal/gen/types.gen.go ./spec/openapi.yaml
 	oapi-codegen -package gen -generate strict-server,gin -templates ./spec/templates -o internal/gen/server.gen.go ./spec/openapi.yaml
@@ -19,6 +25,10 @@ gen-api: bundle-openapi
 bundle-openapi:
 	redocly bundle ./spec/openapi_base.yaml --output ./spec/openapi.yaml
 
+gen-sqlc:
+	sqlc generate -f internal/repository/sqlc.yaml
+	mockgen -source=./internal/repository/gen_sqlc/querier.go -package mock -destination=./internal/repository/gen_mock/mock_querier.go
+	mockgen -source=./internal/repository/gen_sqlc/db.go -package mock -destination=./internal/repository/gen_mock/mock_db.go
 
 # =================================================================
 # ローカル起動する時用のやつ
