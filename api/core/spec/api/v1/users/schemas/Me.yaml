@@ -1,0 +1,11 @@
+title: GetMe
+type: object
+description: 自身のユーザーID取得APIのレスポンス
+required:
+  - uid
+properties:
+  uid:
+    description: uidを返却します。
+    type: string
+example:
+  uid: "123e4567-e89b-12d3-a456-426614174000"

@@ -58,6 +58,27 @@ paths:
           $ref: '#/components/responses/AlreadyExists'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v1/users/me:
+    get:
+      tags:
+        - v1
+        - users
+      summary: 自身のユーザ情報取得API
+      description: 自身のユーザー情報を取得する
+      operationId: getMe
+      responses:
+        '200':
+          description: 自身のユーザ情報の取得に成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -104,6 +125,18 @@ components:
           type: string
       example:
         uid: 123e4567-e89b-12d3-a456-426614174000
+    Me:
+      title: GetMe
+      type: object
+      description: 自身のユーザーID取得APIのレスポンス
+      required:
+        - uid
+      properties:
+        uid:
+          description: uidを返却します。
+          type: string
+      example:
+        uid: 123e4567-e89b-12d3-a456-426614174000
   responses:
     BadRequest:
       description: Bad Request
@@ -113,3 +146,5 @@ components:
       description: Already Exists
     InternalServerError:
       description: Internal Server Error
+    NotFound:
+      description: Not Found
