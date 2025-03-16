@@ -8,8 +8,8 @@ setup-env:
 install-tools: setup-env
 	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 	go install golang.org/x/tools/cmd/godoc@latest
+	go install github.com/rubenv/sql-migrate/...@latest
 	npm i -g @redocly/cli@latest
-
 
 .PHONY: gen-api bundle-openapi
 gen-api: bundle-openapi
@@ -54,6 +54,24 @@ logs:
 .PHONY: mysql
 mysql:
 	MYSQL_ROOT_PASSWORD=password#0 docker compose exec mysql mysql -u root -ppassword#0 -h localhost -P 33306 dev_core
+
+
+# =================================================================
+# MySQLのテーブルをマイグレーションする時のやつ
+# =================================================================
+.PHONY: migrate-new migrate-up migrate-down migrate-status
+migrate-new:
+	sql-migrate new -env='dev' -config=./_tools/sql-migrate/config.yaml $(NAME)
+
+migrate-up:
+	sql-migrate up -env='dev' -config=./_tools/sql-migrate/config.yaml
+
+migrate-down:
+	sql-migrate down -limit=1 -env='dev' -config=./_tools/sql-migrate/config.yaml
+
+migrate-status:
+	sql-migrate status -env='dev' -config=./_tools/sql-migrate/config.yaml
+
 
 
 # =================================================================
