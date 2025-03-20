@@ -14,5 +14,5 @@ sql:
         emit_exact_table_names: false
         emit_methods_with_db_argument: true
         emit_enum_valid_method: true
-        emit_sql_as_comment: true
+        emit_sql_as_comment: false
         json_tags_case_style: "snake"

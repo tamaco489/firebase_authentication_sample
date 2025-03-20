@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gen_sqlc "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
+	repository "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,7 +42,7 @@ func (m *MockQuerier) EXPECT() *MockQuerierMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockQuerier) CreateUser(ctx context.Context, db gen_sqlc.DBTX, arg gen_sqlc.CreateUserParams) error {
+func (m *MockQuerier) CreateUser(ctx context.Context, db repository.DBTX, arg repository.CreateUserParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", ctx, db, arg)
 	ret0, _ := ret[0].(error)
@@ -56,7 +56,7 @@ func (mr *MockQuerierMockRecorder) CreateUser(ctx, db, arg any) *gomock.Call {
 }
 
 // CreateUserFirebaseAuthentication mocks base method.
-func (m *MockQuerier) CreateUserFirebaseAuthentication(ctx context.Context, db gen_sqlc.DBTX, arg gen_sqlc.CreateUserFirebaseAuthenticationParams) error {
+func (m *MockQuerier) CreateUserFirebaseAuthentication(ctx context.Context, db repository.DBTX, arg repository.CreateUserFirebaseAuthenticationParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUserFirebaseAuthentication", ctx, db, arg)
 	ret0, _ := ret[0].(error)
@@ -69,17 +69,17 @@ func (mr *MockQuerierMockRecorder) CreateUserFirebaseAuthentication(ctx, db, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserFirebaseAuthentication", reflect.TypeOf((*MockQuerier)(nil).CreateUserFirebaseAuthentication), ctx, db, arg)
 }
 
-// GetUserByID mocks base method.
-func (m *MockQuerier) GetUserByID(ctx context.Context, db gen_sqlc.DBTX, id string) (gen_sqlc.GetUserByIDRow, error) {
+// GetUIDByFirebaseUID mocks base method.
+func (m *MockQuerier) GetUIDByFirebaseUID(ctx context.Context, db repository.DBTX, firebaseUid string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByID", ctx, db, id)
-	ret0, _ := ret[0].(gen_sqlc.GetUserByIDRow)
+	ret := m.ctrl.Call(m, "GetUIDByFirebaseUID", ctx, db, firebaseUid)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserByID indicates an expected call of GetUserByID.
-func (mr *MockQuerierMockRecorder) GetUserByID(ctx, db, id any) *gomock.Call {
+// GetUIDByFirebaseUID indicates an expected call of GetUIDByFirebaseUID.
+func (mr *MockQuerierMockRecorder) GetUIDByFirebaseUID(ctx, db, firebaseUid any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockQuerier)(nil).GetUserByID), ctx, db, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUIDByFirebaseUID", reflect.TypeOf((*MockQuerier)(nil).GetUIDByFirebaseUID), ctx, db, firebaseUid)
 }

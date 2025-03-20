@@ -10,43 +10,11 @@ import (
 
 type Querier interface {
 	// ユーザーを作成する
-	//
-	//  INSERT INTO `users` (
-	//    `id`,
-	//    `username`,
-	//    `email`,
-	//    `role`,
-	//    `status`,
-	//    `last_login_at`
-	//  ) VALUES (
-	//    ?,
-	//    ?,
-	//    ?,
-	//    ?,
-	//    ?,
-	//    ?
-	//  )
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) error
 	// Firebase Authentication で認証したユーザを作成する
-	//
-	//  INSERT INTO `user_firebase_authentications` (
-	//    `id`,
-	//    `uid`
-	//  ) VALUES (
-	//    ?,
-	//    ?
-	//  )
 	CreateUserFirebaseAuthentication(ctx context.Context, db DBTX, arg CreateUserFirebaseAuthenticationParams) error
-	// uidを指定して対象のユーザ情報を取得する
-	//
-	//  SELECT
-	//    `username`,
-	//    `email`,
-	//    `role`,
-	//    `status`,
-	//    `last_login_at`
-	//  FROM `users` WHERE `id` = ?
-	GetUserByID(ctx context.Context, db DBTX, id string) (GetUserByIDRow, error)
+	// 指定したFirebaseのユーザIDのレコードが存在しているかを判定する
+	GetUIDByFirebaseUID(ctx context.Context, db DBTX, firebaseUid string) (string, error)
 }
 
 var _ Querier = (*Queries)(nil)

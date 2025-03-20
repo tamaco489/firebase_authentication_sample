@@ -10,7 +10,8 @@ import (
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/library/logger"
 
-	repository "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/store"
+	repository_gen_sqlc "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
+	repository_store "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/store"
 )
 
 func NewCoreAPIServer(cnf configuration.Config) (*http.Server, error) {
@@ -21,8 +22,9 @@ func NewCoreAPIServer(cnf configuration.Config) (*http.Server, error) {
 	r.Use(cors.New(corsCfg))
 	r.Use(gin.Recovery())
 
-	db := repository.InitDB()
-	apiController, err := NewCoreControllers(cnf, db)
+	db := repository_store.InitDB()
+	queries := repository_gen_sqlc.New()
+	apiController, err := NewCoreControllers(cnf, db, *queries)
 	if err != nil {
 		return nil, fmt.Errorf("failed to new controllers %v", err)
 	}
