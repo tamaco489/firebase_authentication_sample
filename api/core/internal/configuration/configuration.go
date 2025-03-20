@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -16,6 +17,13 @@ type Config struct {
 		Port        string `envconfig:"API_PORT" default:"8080"`
 		ServiceName string `envconfig:"API_SERVICE_NAME" default:"core-api"`
 	}
+	CoreDB struct {
+		Host string `json:"host"`
+		Port string `json:"port"`
+		User string `json:"username"`
+		Pass string `json:"password"`
+		Name string `json:"dbname"`
+	}
 	Logging   string `envconfig:"LOGGING" default:"off"`
 	AWSConfig aws.Config
 }
@@ -27,8 +35,19 @@ func Load(ctx context.Context) (Config, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	if err := loadAWSConf(ctx); err != nil {
+	env := globalConfig.API.Env
+	if err := loadAWSConf(ctx, env); err != nil {
 		return globalConfig, err
+	}
+
+	if err := batchGetSecrets(
+		ctx,
+		globalConfig.AWSConfig,
+		map[string]any{
+			fmt.Sprintf("core/%s/rds-cluster", env): &globalConfig.CoreDB,
+		},
+	); err != nil {
+		return Config{}, err
 	}
 
 	return globalConfig, nil
