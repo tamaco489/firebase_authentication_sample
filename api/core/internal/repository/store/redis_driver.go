@@ -1,25 +1,27 @@
 package repository
 
 import (
-	"fmt"
-
 	"github.com/redis/go-redis/v9"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/configuration"
 )
 
-const redisTTLSeconds = 30
-
-type RedisConnector struct {
-	Client *redis.Client
+type redisClient struct {
+	client *redis.Client
 }
 
-func NewRedis() *RedisConnector {
-	return &RedisConnector{
-		Client: redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%s", configuration.Get().CoreRedis.Host, configuration.Get().CoreRedis.Port),
+func NewRedis() *redisClient {
+	return &redisClient{
+		client: redis.NewClient(&redis.Options{
+			// NOTE: localstack追加したらこっちに変える
+			// Addr:     fmt.Sprintf("%s:%s", configuration.Get().CoreRedis.Host, configuration.Get().CoreRedis.Port),
+			Addr:     "core-redis:6379",
 			Password: "",
 			DB:       0,
-			PoolSize: 10,
+			PoolSize: configuration.Get().CoreRedis.PoolSize,
 		}),
 	}
+}
+
+func (rc redisClient) GetClient() *redis.Client {
+	return rc.client
 }
