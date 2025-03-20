@@ -17,6 +17,12 @@ services:
       localstack:
         condition: service_healthy
 
+  redis:
+    image: redis:7.4.2
+    container_name: core-redis
+    ports:
+      - "6379:6379"
+
   mysql:
     platform: linux/amd64
     image: mysql:8.0.40
