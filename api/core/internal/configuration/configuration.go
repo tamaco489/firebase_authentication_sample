@@ -25,8 +25,9 @@ type Config struct {
 		Name string `json:"dbname"`
 	}
 	CoreRedis struct {
-		Host string `json:"host"`
-		Port string `json:"port"`
+		Host     string `json:"host"`
+		Port     string `json:"port"`
+		PoolSize int    `json:"pool_size"`
 	}
 	Logging   string `envconfig:"LOGGING" default:"off"`
 	AWSConfig aws.Config

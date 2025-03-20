@@ -3,6 +3,7 @@ package controller
 import (
 	"database/sql"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/configuration"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/usecase"
 
@@ -18,8 +19,9 @@ func NewCoreControllers(
 	cfg configuration.Config,
 	db *sql.DB,
 	queries repository_gen_sqlc.Queries,
+	redisClient *redis.Client,
 ) (*Controllers, error) {
-	userUseCase := usecase.NewUserUseCase(db, queries, db)
+	userUseCase := usecase.NewUserUseCase(db, queries, db, redisClient)
 	return &Controllers{
 		config:      cfg,
 		userUseCase: userUseCase,
