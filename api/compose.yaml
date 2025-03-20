@@ -38,3 +38,24 @@ services:
       - ./core/docker/db/etc/mysql/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
     ports:
       - "33306:3306"
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: core-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: secretsmanager
+      DEBUG: 1
+      AWS_DEFAULT_REGION: ap-northeast-1
+      DATA_DIR: /var/lib/localstack
+    volumes:
+      - "./core/scripts/localstack/mysql_secret_manager.sh:/etc/localstack/init/ready.d/mysql_secret_manager.sh"
+    entrypoint: >
+      /bin/bash -c "awslocal configure set cli_follow_urlparam false && docker-entrypoint.sh"
+    env_file:
+      - ./core/.env_localstack
+    networks:
+      default:
+        aliases:
+          - localhost.localstack.cloud
