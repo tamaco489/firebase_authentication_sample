@@ -68,6 +68,7 @@ list-secrets:
 
 get-secret-value:
 	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/rds-cluster --region ap-northeast-1
+	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/redis-cluster --region ap-northeast-1
 
 
 # =================================================================
@@ -112,8 +113,6 @@ redis-clear-all:
 # e.g. make redis-get-by-key KEY=user_1
 redis-get-by-key:
 	docker-compose exec redis redis-cli -n 0 GET ${KEY}
-
-
 
 
 # =================================================================
