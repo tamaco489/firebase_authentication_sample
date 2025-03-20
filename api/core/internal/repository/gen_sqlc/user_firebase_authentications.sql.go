@@ -25,15 +25,19 @@ type CreateUserFirebaseAuthenticationParams struct {
 }
 
 // Firebase Authentication で認証したユーザを作成する
-//
-//	INSERT INTO `user_firebase_authentications` (
-//	  `id`,
-//	  `uid`
-//	) VALUES (
-//	  ?,
-//	  ?
-//	)
 func (q *Queries) CreateUserFirebaseAuthentication(ctx context.Context, db DBTX, arg CreateUserFirebaseAuthenticationParams) error {
 	_, err := db.ExecContext(ctx, createUserFirebaseAuthentication, arg.ID, arg.Uid)
 	return err
+}
+
+const getUIDByFirebaseUID = `-- name: GetUIDByFirebaseUID :one
+SELECT uid FROM user_firebase_authentications WHERE id = ?
+`
+
+// 指定したFirebaseのユーザIDのレコードが存在しているかを判定する
+func (q *Queries) GetUIDByFirebaseUID(ctx context.Context, db DBTX, firebaseUid string) (string, error) {
+	row := db.QueryRowContext(ctx, getUIDByFirebaseUID, firebaseUid)
+	var uid string
+	err := row.Scan(&uid)
+	return uid, err
 }
