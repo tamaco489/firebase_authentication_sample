@@ -24,6 +24,10 @@ type Config struct {
 		Pass string `json:"password"`
 		Name string `json:"dbname"`
 	}
+	CoreRedis struct {
+		Host string `json:"host"`
+		Port string `json:"port"`
+	}
 	Logging   string `envconfig:"LOGGING" default:"off"`
 	AWSConfig aws.Config
 }
