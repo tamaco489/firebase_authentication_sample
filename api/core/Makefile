@@ -3,7 +3,8 @@
 # =================================================================
 .PHONY: setup-env install-tools
 setup-env:
-	cp -p .env_sample .env
+	@cp -p .env_sample .env
+	@cp .env_localstack_sample .env_localstack
 
 install-tools: setup-env
 	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
@@ -53,10 +54,10 @@ run: build
 # api, mysql
 .PHONY: up down logs
 up:
-	docker compose up -d core-api mysql
+	docker compose up -d core-api mysql localstack
 
 down:
-	docker compose down core-api mysql
+	docker compose down core-api mysql localstack
 
 logs:
 	docker compose logs -f core-api
@@ -64,6 +65,13 @@ logs:
 .PHONY: mysql
 mysql:
 	MYSQL_ROOT_PASSWORD=password#0 docker compose exec mysql mysql -u root -ppassword#0 -h localhost -P 33306 dev_core
+
+.PHONY: list-secrets get-secret-value
+list-secrets:
+	docker exec -it core-localstack awslocal secretsmanager list-secrets --region ap-northeast-1
+
+get-secret-value:
+	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/rds-cluster --region ap-northeast-1
 
 
 # =================================================================
