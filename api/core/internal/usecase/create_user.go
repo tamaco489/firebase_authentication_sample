@@ -52,18 +52,20 @@ func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 	// userを作成
 	if err := u.queries.CreateUser(ctx, u.dbtx, repository_gen_sqlc.CreateUserParams{
 		ID:          uuid.String(),
-		Username:    "tamaco489",
-		Email:       "tamaco489@example.com",
+		Username:    sql.NullString{},
+		Email:       sql.NullString{},
 		Role:        repository_gen_sqlc.UsersRoleGeneral,
 		Status:      repository_gen_sqlc.UsersStatusActive,
-		LastLoginAt: sql.NullTime{Time: time.Now(), Valid: true},
+		LastLoginAt: time.Now(),
 	}); err != nil {
+		// uuidの重複エラー、ほぼ行らない想定だがハンドリングはしておく
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			// エラーコード1062は重複エントリ（PK違反）の場合に発生
 			// DOC: https://dev.mysql.com/doc/mysql-errors/8.0/en/server-error-reference.html#error_er_dup_entry
 			if mysqlErr.Number == 1062 {
-				return gen.CreateUser409Response{}, fmt.Errorf("duplicate primary key entry '%s': %w", uuid.String(), err)
+				slog.ErrorContext(ctx, "duplicate primary key entry.", slog.String("id", uuid.String()), slog.String("error", err.Error()))
+				return gen.CreateUser409Response{}, nil
 			}
 		}
 		return gen.CreateUser500Response{}, fmt.Errorf("failed to create user: %w", err)
