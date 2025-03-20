@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"sync"
 	"time"
 
@@ -35,12 +36,11 @@ func InitDB() *sql.DB {
 }
 
 func connect() (*sql.DB, error) {
-	// NOTE: configの設定が完了したらここちゃんと設定する
 	c := mysql_driver.Config{
-		User:                 "",
-		Passwd:               "",
-		Addr:                 "",
-		DBName:               "",
+		User:                 configuration.Get().CoreDB.User,
+		Passwd:               configuration.Get().CoreDB.Pass,
+		Addr:                 fmt.Sprintf("%s:%s", configuration.Get().CoreDB.Host, configuration.Get().CoreDB.Port),
+		DBName:               configuration.Get().CoreDB.Name,
 		ParseTime:            true,
 		Net:                  "tcp",
 		AllowNativePasswords: true,
