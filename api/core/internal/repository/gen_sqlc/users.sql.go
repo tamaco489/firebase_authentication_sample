@@ -8,6 +8,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createUser = `-- name: CreateUser :exec
@@ -29,12 +30,12 @@ INSERT INTO ` + "`" + `users` + "`" + ` (
 `
 
 type CreateUserParams struct {
-	ID          string       `json:"id"`
-	Username    string       `json:"username"`
-	Email       string       `json:"email"`
-	Role        UsersRole    `json:"role"`
-	Status      UsersStatus  `json:"status"`
-	LastLoginAt sql.NullTime `json:"last_login_at"`
+	ID          string         `json:"id"`
+	Username    sql.NullString `json:"username"`
+	Email       sql.NullString `json:"email"`
+	Role        UsersRole      `json:"role"`
+	Status      UsersStatus    `json:"status"`
+	LastLoginAt time.Time      `json:"last_login_at"`
 }
 
 // ユーザーを作成する

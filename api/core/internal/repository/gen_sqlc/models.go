@@ -121,17 +121,17 @@ type User struct {
 	// プロダクト固有のユニークなID
 	ID string `json:"id"`
 	// ゲーム内のアカウント名
-	Username string `json:"username"`
+	Username sql.NullString `json:"username"`
 	// ユーザのメールアドレス
-	Email string `json:"email"`
+	Email sql.NullString `json:"email"`
 	// ユーザの権限レベル
 	Role UsersRole `json:"role"`
 	// アカウントが有効か、無効か、強制退会済みかを判別
 	Status UsersStatus `json:"status"`
 	// 最終ログイン日時
-	LastLoginAt sql.NullTime `json:"last_login_at"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	LastLoginAt time.Time `json:"last_login_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type UserFirebaseAuthentication struct {
