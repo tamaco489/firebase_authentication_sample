@@ -51,32 +51,35 @@ run: build
 # =================================================================
 # コンテナ起動する時用のやつ
 # =================================================================
-# api, mysql
 .PHONY: up down logs
 up:
-	docker compose up -d core-api mysql localstack
+	docker compose up -d core-api mysql redis localstack
 
 down:
-	docker compose down core-api mysql localstack
+	docker compose down core-api mysql redis localstack
 
 logs:
 	docker compose logs -f core-api
 
-.PHONY: mysql
-mysql:
-	MYSQL_ROOT_PASSWORD=password#0 docker compose exec mysql mysql -u root -ppassword#0 -h localhost -P 33306 dev_core
-
+# secret managerを操作する時のやつ
 .PHONY: list-secrets get-secret-value
 list-secrets:
 	docker exec -it core-localstack awslocal secretsmanager list-secrets --region ap-northeast-1
 
 get-secret-value:
 	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/rds-cluster --region ap-northeast-1
+	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/redis-cluster --region ap-northeast-1
 
 
 # =================================================================
+# MySQL操作する時のやつ
+# =================================================================
+# mysqlにアクセス
+.PHONY: mysql
+mysql:
+	MYSQL_ROOT_PASSWORD=password#0 docker compose exec mysql mysql -u root -ppassword#0 -h localhost -P 33306 dev_core
+
 # MySQLのテーブルをマイグレーションする時のやつ
-# =================================================================
 .PHONY: migrate-new migrate-up migrate-down migrate-status
 migrate-new:
 	sql-migrate new -env='dev' -config=./_tools/sql-migrate/config.yaml $(NAME)
@@ -89,6 +92,27 @@ migrate-down:
 
 migrate-status:
 	sql-migrate status -env='dev' -config=./_tools/sql-migrate/config.yaml
+
+
+# =================================================================
+# Redis操作する時のやつ
+# =================================================================
+.PHONY: redis redis-v redis-get-all redis-clear-all redis-get-by-key
+redis:
+	docker exec -it core-redis redis-cli
+
+redis-v:
+	docker-compose exec redis redis-server --version
+
+redis-get-all:
+	docker-compose exec redis redis-cli KEYS '*'
+
+redis-clear-all:
+	docker-compose exec redis redis-cli FLUSHALL
+
+# e.g. make redis-get-by-key KEY=user_1
+redis-get-by-key:
+	docker-compose exec redis redis-cli -n 0 GET ${KEY}
 
 
 # =================================================================

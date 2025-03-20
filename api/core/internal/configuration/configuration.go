@@ -24,6 +24,12 @@ type Config struct {
 		Pass string `json:"password"`
 		Name string `json:"dbname"`
 	}
+	CoreRedis struct {
+		Host     string `json:"host"`
+		Port     string `json:"port"`
+		Password string `json:"password"`
+		PoolSize int    `json:"pool_size"`
+	}
 	Logging   string `envconfig:"LOGGING" default:"off"`
 	AWSConfig aws.Config
 }
@@ -44,7 +50,8 @@ func Load(ctx context.Context) (Config, error) {
 		ctx,
 		globalConfig.AWSConfig,
 		map[string]any{
-			fmt.Sprintf("core/%s/rds-cluster", env): &globalConfig.CoreDB,
+			fmt.Sprintf("core/%s/rds-cluster", env):   &globalConfig.CoreDB,
+			fmt.Sprintf("core/%s/redis-cluster", env): &globalConfig.CoreRedis,
 		},
 	); err != nil {
 		return Config{}, err

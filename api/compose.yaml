@@ -17,6 +17,12 @@ services:
       localstack:
         condition: service_healthy
 
+  redis:
+    image: redis:7.4.2
+    container_name: core-redis
+    ports:
+      - "6379:6379"
+
   mysql:
     platform: linux/amd64
     image: mysql:8.0.40
@@ -53,6 +59,7 @@ services:
       DATA_DIR: /var/lib/localstack
     volumes:
       - "./core/scripts/localstack/mysql_secret_manager.sh:/etc/localstack/init/ready.d/mysql_secret_manager.sh"
+      - "./core/./scripts/localstack/redis_secret_manager.sh:/etc/localstack/init/ready.d/redis_secret_manager.sh"
     entrypoint: >
       /bin/bash -c "awslocal configure set cli_follow_urlparam false && docker-entrypoint.sh"
     env_file:

@@ -22,9 +22,16 @@ func NewCoreAPIServer(cnf configuration.Config) (*http.Server, error) {
 	r.Use(cors.New(corsCfg))
 	r.Use(gin.Recovery())
 
+	// new mysql
 	db := repository_store.InitDB()
 	queries := repository_gen_sqlc.New()
-	apiController, err := NewCoreControllers(cnf, db, *queries)
+
+	// new redis
+	redis := repository_store.NewRedis()
+	redisClient := redis.GetClient()
+
+	// new controller
+	apiController, err := NewCoreControllers(cnf, db, *queries, redisClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to new controllers %v", err)
 	}
