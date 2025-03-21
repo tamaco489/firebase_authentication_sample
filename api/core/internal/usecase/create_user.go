@@ -11,6 +11,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 
+	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/domain/auth"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
 
 	repository_gen_sqlc "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
@@ -19,7 +20,7 @@ import (
 func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error) {
 
 	// dummyのsubを用意(本来はctxから取得する)
-	sub := "2iSI3im4bcOFJDoT7E9QLebbU9G9"
+	sub := "2iSI3im4bcOFJDoT7E9QLebbU9G2"
 
 	// 認証種別に応じて既にユーザ登録済みの場合は409エラーにする
 	switch request.Body.ProviderType {
@@ -49,8 +50,17 @@ func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 		return gen.CreateUser500Response{}, fmt.Errorf("failed to new uuid: %w", err)
 	}
 
+	// transactionを発行
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return gen.CreateUser500Response{}, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	// 関数を抜ける際にロールバックを行う
+	defer func() { _ = tx.Rollback() }()
+
 	// userを作成
-	if err := u.queries.CreateUser(ctx, u.dbtx, repository_gen_sqlc.CreateUserParams{
+	if err := u.queries.CreateUser(ctx, tx, repository_gen_sqlc.CreateUserParams{
 		ID:          uuid.String(),
 		Username:    sql.NullString{},
 		Email:       sql.NullString{},
@@ -76,7 +86,7 @@ func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 		// firebase userを作成
 		if err := u.queries.CreateUserFirebaseAuthentication(
 			ctx,
-			u.dbtx,
+			tx,
 			repository_gen_sqlc.CreateUserFirebaseAuthenticationParams{
 				ID:  sub,
 				Uid: uuid.String(),
@@ -93,6 +103,20 @@ func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 
 	default:
 		return gen.CreateUser500Response{}, fmt.Errorf("invalid authentication type: %s", request.Body.ProviderType)
+	}
+
+	// NOTE: 本来であれば、middleware上でjwtを解析し、取得したsub等の情報をusecaseに渡す
+	authTime := int64(1742064672)
+	expire := int64(1742068272)
+	session := auth.NewDefaultSessionData(sub, authTime, expire, uuid.String(), string(request.Body.ProviderType))
+
+	if err := session.SaveToRedis(ctx, u.redisClient); err != nil {
+		return gen.CreateUser500Response{}, err
+	}
+
+	// transactionをcommit
+	if err := tx.Commit(); err != nil {
+		return gen.CreateUser500Response{}, fmt.Errorf("failed to transaction commit: %w", err)
 	}
 
 	return gen.CreateUser201JSONResponse{

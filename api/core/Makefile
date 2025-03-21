@@ -110,10 +110,13 @@ redis-get-all:
 redis-clear-all:
 	docker-compose exec redis redis-cli FLUSHALL
 
-# e.g. make redis-get-by-key KEY=user_1
+# e.g. make redis-get-by-key sub=2iSI3im4bcOFJDoT7E9QLebbU9G2
 redis-get-by-key:
-	docker-compose exec redis redis-cli -n 0 GET ${KEY}
+	docker-compose exec redis redis-cli -n 0 GET session:${sub}
 
+# e.g. make redis-get-by-key sub=2iSI3im4bcOFJDoT7E9QLebbU9G2
+redis-get-ttl-by-key:
+	docker-compose exec redis redis-cli -n 0 TTL session:${sub}
 
 # =================================================================
 # apiリクエストする時用のやつ（dev）
@@ -137,9 +140,12 @@ create-user:
 		'http://localhost:8080/core/v1/users' \
 		-H 'accept: application/json' \
 		-H 'Content-Type: application/json' \
-		-d '{"provider_type": "firebase"}'
+		-d '{"provider_type": "firebase"}' \
+		-w "\nTotal time: %{time_total}s\n"
 
 get-me:
 	curl -i -X 'GET' \
 		'http://localhost:8080/core/v1/users/me' \
-		-H 'accept: application/json'
+		-H 'accept: application/json' \
+		-w "\nTotal time: %{time_total}s\n"
+
