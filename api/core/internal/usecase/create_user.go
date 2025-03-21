@@ -105,12 +105,11 @@ func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 		return gen.CreateUser500Response{}, fmt.Errorf("invalid authentication type: %s", request.Body.ProviderType)
 	}
 
-	// NOTE: 本来であれば、middleware上でjwtを解析し、取得したsub等の情報をusecaseに渡す
+	// NOTE: 本来であればmiddleware上でjwtを解析して得たものをusecase上で使用する
 	authTime := int64(1742064672)
 	expire := int64(1742068272)
-	session := auth.NewDefaultSessionData(sub, authTime, expire, uuid.String(), string(request.Body.ProviderType))
-
-	if err := session.SaveToRedis(ctx, u.redisClient); err != nil {
+	session := auth.NewSaveSession(sub, authTime, expire, uuid.String(), string(request.Body.ProviderType))
+	if err := session.Save(ctx, u.redisClient); err != nil {
 		return gen.CreateUser500Response{}, err
 	}
 
