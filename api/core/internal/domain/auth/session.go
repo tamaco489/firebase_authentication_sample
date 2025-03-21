@@ -11,8 +11,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// SessionData セッション情報の構造体
-type sessionData struct {
+// session: セッション情報の構造体
+type session struct {
 	// 各認証機関で発行されたユニークなID
 	Sub string `json:"sub"`
 
@@ -29,15 +29,26 @@ type sessionData struct {
 	Provider string `json:"provider"`
 }
 
-// NewDefaultSessionData デフォルト値付きのコンストラクタ
-func NewDefaultSessionData(
+// NewGetSessionData: セッション情報を取得するためのコンストラクタ
+func NewGetSession(sub string) *session {
+	return &session{
+		Sub:      sub,
+		AuthTime: 0,
+		Exp:      0,
+		UID:      "",
+		Provider: "",
+	}
+}
+
+// func NewSaveSession: セッション情報を保存するためのコンストラクタ
+func NewSaveSession(
 	sub string,
 	authTime int64,
 	expire int64,
 	uid string,
 	provider string,
-) *sessionData {
-	return &sessionData{
+) *session {
+	return &session{
 		Sub:      sub,
 		AuthTime: authTime,
 		Exp:      expire,
@@ -46,13 +57,8 @@ func NewDefaultSessionData(
 	}
 }
 
-// IsExpired: セッションが有効期限切れかチェック
-func (s *sessionData) IsExpired() bool {
-	return time.Now().Unix() > s.Exp
-}
-
 // ToJSON JSON 文字列に変換
-func (s *sessionData) ToJSON() (string, error) {
+func (s *session) ToJSON() (string, error) {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal session data: %w", err)
@@ -60,8 +66,8 @@ func (s *sessionData) ToJSON() (string, error) {
 	return string(data), nil
 }
 
-// SaveToRedis: firebase の sub を KEYとしてセッション情報を保存する
-func (s *sessionData) SaveToRedis(ctx context.Context, client *redis.Client) error {
+// Save: firebase の sub を KEYとしてセッション情報を保存する
+func (s *session) Save(ctx context.Context, client *redis.Client) error {
 	if s.Sub == "" {
 		return errors.New("provider's sub is empty")
 	}
@@ -74,13 +80,39 @@ func (s *sessionData) SaveToRedis(ctx context.Context, client *redis.Client) err
 	key := fmt.Sprintf("session:%s", s.Sub)
 
 	// Redisにセッション情報を格納する
-	// NOTE: firebaseの認証の有効期限が1時間のためそちらに合わせる、ただし本番運用の場合は1時間は短すぎるので24時間くらいが妥当だと思う。
+	// NOTE: firebaseの認証の有効期限が1時間のためそちらに合わせる。※1時間経つと自動的にRedisから削除される
+	// NOTE: ただし本番運用の場合は1時間は短すぎるので24時間くらいが妥当だと思う。
 	if err := client.Set(ctx, key, data, time.Hour).Err(); err != nil {
 		return fmt.Errorf("failed to save session data to redis: %w", err)
 	}
 
 	// todo: 検証終了後削除
 	slog.InfoContext(ctx, "success save to redis.", slog.String("key", key))
+
+	return nil
+}
+
+// Get: 指定したキーからセッション情報を取得する
+func (s *session) Get(ctx context.Context, client *redis.Client) error {
+	if s.Sub == "" {
+		return errors.New("provider's sub is empty")
+	}
+
+	key := fmt.Sprintf("session:%s", s.Sub)
+
+	// Redisにセッション情報を取得する
+	data, err := client.Get(ctx, key).Result()
+	if err != nil {
+		// セッションが存在しない、または有効期限切れで削除された場合はnilを返す
+		if err == redis.Nil {
+			return nil
+		}
+		return fmt.Errorf("failed to get session data from redis: %w", err)
+	}
+
+	if err = json.Unmarshal([]byte(data), s); err != nil {
+		return fmt.Errorf("failed to unmarshal session data: %w", err)
+	}
 
 	return nil
 }
