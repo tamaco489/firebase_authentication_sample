@@ -114,7 +114,7 @@ redis-clear-all:
 redis-get-by-key:
 	docker-compose exec redis redis-cli -n 0 GET session:${sub}
 
-# e.g. make redis-get-by-key sub=2iSI3im4bcOFJDoT7E9QLebbU9G2
+# e.g. make redis-get-ttl-by-key sub=2iSI3im4bcOFJDoT7E9QLebbU9G2
 redis-get-ttl-by-key:
 	docker-compose exec redis redis-cli -n 0 TTL session:${sub}
 
