@@ -69,6 +69,7 @@ list-secrets:
 get-secret-value:
 	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/rds-cluster --region ap-northeast-1
 	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/redis-cluster --region ap-northeast-1
+	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/firebase-service-account --region ap-northeast-1
 
 
 # =================================================================
