@@ -2,7 +2,7 @@ core/tmp/
 !docker/db/etc/mysql/conf.d/my.cnf
 core/docker/db/var/
 core/build/core_api
-tamaco489-auth-sample-*.json
+.env_localstack
 .env
 *.txt
 *_bk
