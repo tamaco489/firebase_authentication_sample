@@ -4,3 +4,4 @@ core/docker/db/var/
 core/build/core_api
 .env
 *.txt
+*_bk
