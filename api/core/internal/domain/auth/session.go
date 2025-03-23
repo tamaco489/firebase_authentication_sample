@@ -32,11 +32,7 @@ func NewGetSession(sub string) *session {
 }
 
 // func NewSaveSession: セッション情報を保存するためのコンストラクタ
-func NewSaveSession(
-	sub string,
-	uid string,
-	provider string,
-) *session {
+func NewSaveSession(sub, uid, provider string) *session {
 	return &session{
 		Sub:      sub,
 		UID:      uid,
@@ -45,7 +41,7 @@ func NewSaveSession(
 }
 
 // ToJSON JSON 文字列に変換
-func (s *session) ToJSON() (string, error) {
+func (s *session) toJSON() (string, error) {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal session data: %w", err)
@@ -59,7 +55,7 @@ func (s *session) Save(ctx context.Context, client *redis.Client) error {
 		return errors.New("provider's sub is empty")
 	}
 
-	data, err := s.ToJSON()
+	data, err := s.toJSON()
 	if err != nil {
 		return err
 	}
