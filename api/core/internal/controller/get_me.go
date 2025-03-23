@@ -17,8 +17,14 @@ func (c *Controllers) GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (g
 		return gen.GetMe401Response{}, nil
 	}
 
+	provider, ok := ctx_utils.GetFirebaseProviderType(ctx)
+	if !ok {
+		_ = ctx.Error(errors.New("failed to get provider from context"))
+		return gen.GetMe401Response{}, nil
+	}
+
 	// todo: 検証後削除
-	log.Println("[info] success get sub:", sub)
+	log.Println("[info] sub:", sub, "provider:", provider)
 
 	res, err := c.userUseCase.GetMe(ctx, request)
 	if err != nil {

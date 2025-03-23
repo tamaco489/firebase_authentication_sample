@@ -74,6 +74,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		// todo: 8. contextにuid、sub、providerを入れる
 		if token.Firebase.SignInProvider != "" {
 			ctx_utils.SetFirebaseUID(c, token.Subject)
+			ctx_utils.SetFirebaseProviderType(c, ctx_utils.FirebaseProviderKey.String())
 		}
 
 		c.Next()

@@ -22,3 +22,22 @@ func GetFirebaseUID(ctx *gin.Context) (string, bool) {
 	sub, ok := ctx.Value(firebaseUIDKey.String()).(string)
 	return sub, ok
 }
+
+type authProviderTypeKey string
+
+const (
+	FirebaseProviderKey authProviderTypeKey = "firebase"
+)
+
+func (ap authProviderTypeKey) String() string {
+	return string(ap)
+}
+
+func SetFirebaseProviderType(ctx *gin.Context, providerType string) {
+	ctx.Set(FirebaseProviderKey.String(), providerType)
+}
+
+func GetFirebaseProviderType(ctx *gin.Context) (string, bool) {
+	provider, ok := ctx.Value(FirebaseProviderKey.String()).(string)
+	return provider, ok
+}
