@@ -32,7 +32,7 @@ func NewCoreAPIServer(cnf configuration.Config) (*http.Server, error) {
 	redisClient := redis.GetClient()
 
 	// 認可(JWT検証)
-	r.Use(middleware.JWTAuthMiddleware(redisClient))
+	r.Use(middleware.JWTAuthMiddleware(db, *queries, redisClient))
 
 	// new controller
 	apiController, err := NewCoreControllers(cnf, db, *queries, redisClient)
