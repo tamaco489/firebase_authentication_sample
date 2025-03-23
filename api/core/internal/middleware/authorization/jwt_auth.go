@@ -25,33 +25,33 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		// Authorization ヘッダーの取得
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"msg": "Authorization header is required"})
-			c.Abort()
+			slog.WarnContext(c.Request.Context(), "authorization header is required")
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
 		// "Bearer {token}" 形式のチェック
 		idToken := strings.TrimPrefix(authHeader, "Bearer ")
 		if idToken == authHeader {
-			c.JSON(http.StatusUnauthorized, gin.H{"msg": "Invalid token format"})
-			c.Abort()
+			slog.WarnContext(c.Request.Context(), "failed to extract authorization header")
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		// todo: 1. Firebase Admin SDK の初期化、及びインスタンス生成
+		// Firebase Admin SDK の初期化、及びインスタンス生成
 		firebaseClient, err := firebase.NewFirebaseClient(c.Request.Context(), configuration.Get().Firebase.GoogleServiceAccount)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"msg": "Failed to initialize Firebase client"})
-			c.Abort()
+			slog.ErrorContext(c.Request.Context(), "failed to initialize Firebase client", slog.String("error", err.Error()))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
-		// todo: 2. jwtフォーマットの検証
+		// jwt検証（フォーマットが正しいかどうか、有効期限内かどうか）
 		token, err := firebaseClient.VerifyIDToken(c.Request.Context(), idToken)
 		if err != nil {
 			// トークン検証失敗
-			c.JSON(http.StatusUnauthorized, gin.H{"msg": "Invalid or expired token"})
-			c.Abort()
+			slog.ErrorContext(c.Request.Context(), "invalid or expired token", slog.String("error", err.Error()))
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
