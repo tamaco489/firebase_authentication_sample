@@ -25,18 +25,18 @@ const (
 // JWTAuthMiddleware:
 func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisClient *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// *************** [1. Authorization Headerのチェック] ***************
 		// healthcheckの場合は検証をスキップ
 		if c.Request.Method == http.MethodGet && c.Request.URL.Path == healthCheckEndpoint {
 			c.Next()
 			return
 		}
 
+		// *************** [1. Authorization Headerのチェック] ***************
 		// Authorization ヘッダーの取得
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			slog.WarnContext(c.Request.Context(), "authorization header is required")
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "authorization header is required"})
 			return
 		}
 
@@ -44,15 +44,15 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 		idToken := strings.TrimPrefix(authHeader, "Bearer ")
 		if idToken == authHeader {
 			slog.WarnContext(c.Request.Context(), "failed to extract authorization header")
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "failed to extract authorization header"})
 			return
 		}
 
 		// Firebase Admin SDK の初期化、及びインスタンス生成
 		firebaseClient, err := firebase.NewFirebaseClient(c.Request.Context(), configuration.Get().Firebase.GoogleServiceAccount)
 		if err != nil {
-			slog.ErrorContext(c.Request.Context(), "failed to initialize Firebase client", slog.String("error", err.Error()))
-			c.AbortWithStatus(http.StatusInternalServerError)
+			slog.ErrorContext(c.Request.Context(), "failed to initialize firebase client", slog.String("error", err.Error()))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "failed to initialize firebase client"})
 			return
 		}
 
@@ -61,7 +61,7 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 		if err != nil {
 			// トークン検証失敗
 			slog.ErrorContext(c.Request.Context(), "invalid or expired token", slog.String("error", err.Error()))
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "invalid or expired token"})
 			return
 		}
 
@@ -79,7 +79,7 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 		session := auth.NewGetSession(token.Subject)
 		if err := session.Get(c.Request.Context(), redisClient); err != nil {
 			slog.ErrorContext(c.Request.Context(), "failed to new get session", slog.String("error", err.Error()))
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"msg": "failed to new get session"})
 			return
 		}
 
@@ -94,14 +94,14 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 			uid, err = queries.GetUIDByFirebaseUID(c.Request.Context(), db, token.Subject)
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				slog.ErrorContext(c.Request.Context(), "failed to fetch firebase uid by mysql", slog.String("error", err.Error()))
-				c.AbortWithStatus(http.StatusInternalServerError)
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"msg": "failed to fetch firebase uid by mysql"})
 				return
 			}
 
 			// MySQLにも存在しなかった場合は404エラーを返す
 			if uid == "" {
 				slog.ErrorContext(c.Request.Context(), "not exists user", slog.String("error", err.Error()))
-				c.AbortWithStatus(http.StatusNotFound)
+				c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"msg": "not exists user"})
 				return
 			}
 
@@ -109,7 +109,7 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 			newSession := auth.NewSaveSession(token.Subject, uid, ctx_utils.FirebaseProviderKey.String())
 			if err := newSession.Save(c.Request.Context(), redisClient); err != nil {
 				slog.ErrorContext(c.Request.Context(), "failed to save session to redis", slog.String("error", err.Error()))
-				c.AbortWithStatus(http.StatusInternalServerError)
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"msg": "failed to save session to redis"})
 				return
 			}
 		}
