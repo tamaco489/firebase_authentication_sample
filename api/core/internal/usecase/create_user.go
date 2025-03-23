@@ -1,13 +1,13 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 
@@ -17,10 +17,7 @@ import (
 	repository_gen_sqlc "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
 )
 
-func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error) {
-
-	// dummyのsubを用意(本来はctxから取得する)
-	sub := "2iSI3im4bcOFJDoT7E9QLebbU9G2"
+func (u *userUseCase) CreateUser(ctx context.Context, sub string, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error) {
 
 	// 認証種別に応じて既にユーザ登録済みの場合は409エラーにする
 	switch request.Body.ProviderType {
@@ -105,10 +102,7 @@ func (u *userUseCase) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 		return gen.CreateUser500Response{}, fmt.Errorf("invalid authentication type: %s", request.Body.ProviderType)
 	}
 
-	// NOTE: 本来であればmiddleware上でjwtを解析して得たものをusecase上で使用する
-	authTime := int64(1742064672)
-	expire := int64(1742068272)
-	session := auth.NewSaveSession(sub, authTime, expire, uuid.String(), string(request.Body.ProviderType))
+	session := auth.NewSaveSession(sub, uuid.String(), string(request.Body.ProviderType))
 	if err := session.Save(ctx, u.redisClient); err != nil {
 		return gen.CreateUser500Response{}, err
 	}

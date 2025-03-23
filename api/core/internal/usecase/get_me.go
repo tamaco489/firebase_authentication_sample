@@ -9,6 +9,7 @@ import (
 
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/domain/auth"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
+	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/utils/ctx_utils"
 )
 
 func (u *userUseCase) GetMe(ctx context.Context, uid, sub string, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
@@ -30,15 +31,12 @@ func (u *userUseCase) GetMe(ctx context.Context, uid, sub string, request gen.Ge
 		return gen.GetMe500Response{}, fmt.Errorf("failed to get uid by firebase uid: %w", err)
 	}
 	if uid == "" {
-		slog.ErrorContext(ctx, "not exists firebase user.", slog.String("sub", sub))
+		slog.ErrorContext(ctx, "not exists firebase user", slog.String("sub", sub))
 		return gen.GetMe404Response{}, nil
 	}
 
 	// redisにセッション情報を登録する
-	// NOTE: 本来であればmiddleware上でjwtを解析して得たものをusecase上で使用する
-	authTime := int64(1742064672)
-	expire := int64(1742068272)
-	newSession := auth.NewSaveSession(sub, authTime, expire, uid, "firebase") // providerも一旦固定値
+	newSession := auth.NewSaveSession(sub, uid, ctx_utils.FirebaseProviderKey.String())
 	if err := newSession.Save(ctx, u.redisClient); err != nil {
 		return gen.GetMe500Response{}, err
 	}

@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
+	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/utils/ctx_utils"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -20,7 +23,13 @@ func (c *Controllers) CreateUser(ctx *gin.Context, request gen.CreateUserRequest
 		return gen.CreateUser400Response{}, nil
 	}
 
-	res, err := c.userUseCase.CreateUser(ctx, request)
+	sub, ok := ctx_utils.GetFirebaseUID(ctx)
+	if !ok {
+		_ = ctx.Error(errors.New("failed to get sub from context"))
+		return gen.GetMe401Response{}, nil
+	}
+
+	res, err := c.userUseCase.CreateUser(ctx, sub, request)
 	if err != nil {
 		return gen.CreateUser500Response{}, err
 	}
