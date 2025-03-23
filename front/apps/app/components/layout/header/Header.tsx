@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, onAuthStateChanged,  User } from '@firebase/auth';
+import { getAuth, onAuthStateChanged, User } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 import useSignOut from '@/features/auth/signout';
@@ -29,34 +29,21 @@ const Header = () => {
     return () => unsubscribe();
   }, []);
 
-  const { handleSignOut } = useSignOut(); // handleSignOut を取得
+  const { handleSignOut } = useSignOut();
 
   return (
-    <header
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        backgroundImage: 'url(/images/header-bg.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        padding: '20px',
-        color: 'white',
-        fontFamily: 'Pixelify Sans, sans-serif',
-        zIndex: 100,
-      }}
-    >
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{margin: 0, fontSize: '2em', cursor: 'pointer'}} onClick={() => router.push('/')}>
+    <header className="fixed top-0 left-0 w-full bg-cover bg-center p-5 text-white font-[Pixelify Sans, sans-serif] z-50"
+            style={{ backgroundImage: 'url(/images/header-bg.jpg)' }}>
+      <nav className="flex justify-between items-center">
+        <h1 className="text-2xl cursor-pointer" onClick={() => router.push('/')}>
           Game Title
         </h1>
-        <div>
+        <div className="flex gap-4">
           {/* 認証されていない場合のみ表示 */}
           {!user && (
             <>
               <SignInButton onClick={() => router.push('/sign_in')} />
-              <SignUpButton onClick={() => router.push('sign_up') } />
+              <SignUpButton onClick={() => router.push('/sign_up')} />
             </>
           )}
 
