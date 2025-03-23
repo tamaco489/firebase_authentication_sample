@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
@@ -23,16 +22,7 @@ func (c *Controllers) GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (g
 		return gen.GetMe401Response{}, nil
 	}
 
-	provider, ok := ctx_utils.GetFirebaseProviderType(ctx)
-	if !ok {
-		_ = ctx.Error(errors.New("failed to get provider from context"))
-		return gen.GetMe401Response{}, nil
-	}
-
-	// todo: 検証後削除
-	log.Println("[info] sub:", sub, "uid:", uid, "provider:", provider)
-
-	res, err := c.userUseCase.GetMe(ctx, request)
+	res, err := c.userUseCase.GetMe(ctx, uid, sub, request)
 	if err != nil {
 		return gen.GetMe500Response{}, err
 	}

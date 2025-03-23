@@ -145,8 +145,8 @@ create-user:
 		-w "\nTotal time: %{time_total}s\n"
 
 get-me:
-	curl -i -X 'GET' \
+	curl -i -sX 'GET' \
 		'http://localhost:8080/core/v1/users/me' \
 		-H 'accept: application/json' \
+		-H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjMwYjIyMWFiNjU2MTdiY2Y4N2VlMGY4NDYyZjc0ZTM2NTIyY2EyZTQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGFtYWNvNDg5LWF1dGgtc2FtcGxlIiwiYXVkIjoidGFtYWNvNDg5LWF1dGgtc2FtcGxlIiwiYXV0aF90aW1lIjoxNzQyNzIzODA1LCJ1c2VyX2lkIjoibTNrV3RLVmlmU1BKZGRaZTcwMnBrdm9kQXJPMiIsInN1YiI6Im0za1d0S1ZpZlNQSmRkWmU3MDJwa3ZvZEFyTzIiLCJpYXQiOjE3NDI3MzE2ODMsImV4cCI6MTc0MjczNTI4MywiZW1haWwiOiJ0YW1hY280ODlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbInRhbWFjbzQ4OUBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.bRZoNJe5OsOQymfmXZ8CXgUVkb_2VUa6ffixvH4zva_gI0kguaEFjxR6PpgHlkGHkBDdd9pLd_p6_VC0e6KoX3TouRwCbGJC1VEvZbbaLBY4tqe9cU5L3fvbmjhaa434E8LH99Qqh31EbYui0H8IUqXr4PadM6n5MxhubaBNaN3NyD8p_g47BQhnJTLItMrHB_lBOj4x-f0x_WVvFPTfrPbt9VjL-WLqueoRCZhKr-6__Z0QrZyRwj_OZT_GQp5dYxtfWGMHi11vwGOiakyh0lp3vCD3IOaThYCH6epv5xJYtb6r17hUudQ3REVEeCnlEH1aAIKvYNcxh2iT63IM2g' \
 		-w "\nTotal time: %{time_total}s\n"
-

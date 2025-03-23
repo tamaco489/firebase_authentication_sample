@@ -1,21 +1,17 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log/slog"
 
-	"github.com/gin-gonic/gin"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/domain/auth"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
 )
 
-func (u *userUseCase) GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
-
-	// NOTE: 本来であればmiddleware上でjwtを解析して得たものをusecase上で使用する
-	// sub := "hoge"
-	sub := "2iSI3im4bcOFJDoT7E9QLebbU9G2"
+func (u *userUseCase) GetMe(ctx context.Context, uid, sub string, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error) {
 
 	// redisからセッション情報を取得する
 	session := auth.NewGetSession(sub)
