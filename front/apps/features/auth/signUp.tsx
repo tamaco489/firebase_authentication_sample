@@ -5,6 +5,7 @@ import { getAuth, createUserWithEmailAndPassword } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 import { useRouter } from 'next/navigation';
+import { API_HOST } from '@/constants/api';
 
 const useSignUp = () => {
   const [email, setEmail] = useState('');
@@ -19,8 +20,54 @@ const useSignUp = () => {
     try {
       const app = initializeApp(FIREBASE_CONFIG);
       const auth = getAuth(app);
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/'); // サインアップ成功後に '/' へ遷移
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Firebase から ID トークンを取得
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      // todo: 検証後削除。
+      console.log('[debug:1] user info:' , user);
+      console.log('[debug:2] id_token:' , idToken);
+
+      // APIリクエスト設定
+      // todo: constants/api.tsで定義しているAPI_HOSTを使う。
+      // const API_HOST = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
+      // リクエストヘッダーの設定
+      // Bearer トークン: Firebase Authentication から取得したIDトークンを設定
+      // todo: これもconstants/api.tsで定義してそれを使いまわすかたちにする。※GetMeのリクエスト完成させてからの方が早いかも
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${idToken}`,
+      };
+
+      // リクエストボディの設定
+      // todo: このエンドポイント専用のリクエストボディの型と、provider_typeも型定義する
+      const body = {
+        provider_type: 'firebase',
+      };
+
+      // todo: この辺りもクラスメソッドに変更
+      const response = await fetch(`${API_HOST}/users`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body),
+      });
+
+      // レスポンスの処理
+      // todo: これは不要になる想定
+      const data = await response.json();
+      console.log('user created:', data);
+
+      // レスポンスのエラーチェック
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      // サインアップ成功後に '/' へ遷移
+      router.push('/');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
