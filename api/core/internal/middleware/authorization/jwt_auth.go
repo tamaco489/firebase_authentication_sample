@@ -31,7 +31,6 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 			return
 		}
 
-		// *************** [1. Authorization Headerのチェック] ***************
 		// Authorization ヘッダーの取得
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -59,13 +58,12 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 		// jwt検証（フォーマットが正しいかどうか、有効期限内かどうか、署名が正しいかどうか）
 		token, err := firebaseClient.VerifyIDToken(c.Request.Context(), idToken)
 		if err != nil {
-			// トークン検証失敗
 			slog.ErrorContext(c.Request.Context(), "invalid or expired token", slog.String("error", err.Error()))
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "invalid or expired token"})
 			return
 		}
 
-		// ユーザ新規登録の処理
+		// ユーザ新規登録の処理 （検証済みのsubとprovider_typeをctxに設定して返してしまう）
 		if c.Request.Method == http.MethodPost && c.Request.URL.Path == createUserEndpoint {
 			ctx_utils.SetFirebaseUID(c, token.Subject)
 			ctx_utils.SetFirebaseProviderType(c, ctx_utils.FirebaseProviderKey.String())
@@ -73,8 +71,7 @@ func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisCli
 			return
 		}
 
-		// NOTE: ユーザ新規登録以外の共通の処理
-		// 取得したsubをkeyにしてredisからセッション情報を取得
+		// 取得したsubをkeyにしてredisからセッション情報を取得（ユーザ新規登録API以外のエンドポイント共通処理）
 		var uid string
 		session := auth.NewGetSession(token.Subject)
 		if err := session.Get(c.Request.Context(), redisClient); err != nil {
