@@ -7,20 +7,18 @@ interface SignInButtonProps {
 const SignInButton: React.FC<SignInButtonProps> = ({ onClick }) => {
   return (
     <button
-      style={{
-        backgroundColor: '#4CAF50',
-        border: 'none',
-        color: 'white',
-        padding: '10px 20px',
-        textAlign: 'center',
-        textDecoration: 'none',
-        display: 'inline-block',
-        fontSize: '1em',
-        margin: '4px 2px',
-        cursor: 'pointer',
-        borderRadius: '5px',
-        transition: 'background-color 0.3s ease',
-      }}
+      className="
+        bg-[#4CAF50]
+        text-white
+        py-2 px-5
+        text-lg
+        font-medium
+        rounded-md
+        transition-colors
+        duration-300
+        hover:bg-[#45a049]
+        focus:outline-none
+      "
       onClick={onClick}
     >
       ログイン
