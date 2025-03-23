@@ -149,5 +149,5 @@ get-me:
 	curl -i -sX 'GET' \
 		'http://localhost:8080/core/v1/users/me' \
 		-H 'accept: application/json' \
-		-H 'Authorization: Bearer ' \
+		-H 'Authorization: Bearer ***' \
 		-w "\nTotal time: %{time_total}s\n"
