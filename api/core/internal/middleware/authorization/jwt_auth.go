@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/configuration"
+	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/domain/auth"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/library/firebase"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/utils/ctx_utils"
 )
@@ -14,7 +16,7 @@ import (
 const healthCheckEndpoint = "/core/v1/healthcheck"
 
 // JWTAuthMiddleware:
-func JWTAuthMiddleware() gin.HandlerFunc {
+func JWTAuthMiddleware(redisClient *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// *************** [1. Authorization Headerのチェック] ***************
 		// healthcheckの場合は検証をスキップ
@@ -67,14 +69,30 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			slog.Any("firebase_info", token.Firebase),
 		)
 
-		// todo: 5. 取得したsubをkeyにしてredisからセッション情報を取得し、有効期限内かの判定を行う。
-		// todo: 6. セッションが有効期限内: MySQLにアクセスせずに、セッションからuidを取得
-		// todo: 7. セッションが有効期限切れ: Redisに再度セッションを保存した上でMySQLにアクセスし、subをkeyにしてuidを取得
+		// 取得したsubをkeyにしてredisからセッション情報を取得
+		var uid string
+		session := auth.NewGetSession(token.Subject)
+		if err := session.Get(c.Request.Context(), redisClient); err != nil {
+			slog.ErrorContext(c.Request.Context(), "failed to new get session", slog.String("error", err.Error()))
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		// セッションが存在している場合: MySQLにアクセスせずに、セッションからuidを取得
+		if session.UID != "" {
+			uid = session.UID
+		}
+
+		// todo: 7. セッションが存在していない場合: Redisに再度セッションを保存した上でMySQLにアクセスし、subをkeyにしてuidを取得
+		if session.UID == "" {
+			// 0195b45e-a7e3-7572-b2b8-e85247c422b8
+		}
 
 		// todo: 8. contextにuid、sub、providerを入れる
 		if token.Firebase.SignInProvider != "" {
 			ctx_utils.SetFirebaseUID(c, token.Subject)
 			ctx_utils.SetFirebaseProviderType(c, ctx_utils.FirebaseProviderKey.String())
+			ctx_utils.SetCoreUID(c, uid)
 		}
 
 		c.Next()

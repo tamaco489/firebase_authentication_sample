@@ -17,6 +17,12 @@ func (c *Controllers) GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (g
 		return gen.GetMe401Response{}, nil
 	}
 
+	uid, ok := ctx_utils.GetCoreUID(ctx)
+	if !ok {
+		_ = ctx.Error(errors.New("failed to get uid from context"))
+		return gen.GetMe401Response{}, nil
+	}
+
 	provider, ok := ctx_utils.GetFirebaseProviderType(ctx)
 	if !ok {
 		_ = ctx.Error(errors.New("failed to get provider from context"))
@@ -24,7 +30,7 @@ func (c *Controllers) GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (g
 	}
 
 	// todo: 検証後削除
-	log.Println("[info] sub:", sub, "provider:", provider)
+	log.Println("[info] sub:", sub, "uid:", uid, "provider:", provider)
 
 	res, err := c.userUseCase.GetMe(ctx, request)
 	if err != nil {
