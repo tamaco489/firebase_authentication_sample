@@ -10,6 +10,7 @@ import (
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/library/logger"
 
+	middleware "github.com/tamaco489/firebase_authentication_sample/api/core/internal/middleware/authorization"
 	repository_gen_sqlc "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
 	repository_store "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/store"
 )
@@ -29,6 +30,9 @@ func NewCoreAPIServer(cnf configuration.Config) (*http.Server, error) {
 	// new redis
 	redis := repository_store.NewRedis()
 	redisClient := redis.GetClient()
+
+	// 認可(JWT検証)
+	r.Use(middleware.JWTAuthMiddleware(db, *queries, redisClient))
 
 	// new controller
 	apiController, err := NewCoreControllers(cnf, db, *queries, redisClient)

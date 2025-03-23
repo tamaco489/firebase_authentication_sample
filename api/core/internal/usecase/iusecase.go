@@ -1,9 +1,9 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 
-	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/gen"
 
@@ -18,8 +18,8 @@ type userUseCase struct {
 }
 
 type IUserUseCase interface {
-	CreateUser(ctx *gin.Context, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error)
-	GetMe(ctx *gin.Context, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error)
+	CreateUser(ctx context.Context, sub string, request gen.CreateUserRequestObject) (gen.CreateUserResponseObject, error)
+	GetMe(ctx context.Context, uid string, request gen.GetMeRequestObject) (gen.GetMeResponseObject, error)
 }
 
 var _ IUserUseCase = (*userUseCase)(nil)

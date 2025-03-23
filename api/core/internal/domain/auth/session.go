@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -15,12 +14,6 @@ import (
 type session struct {
 	// 各認証機関で発行されたユニークなID
 	Sub string `json:"sub"`
-
-	// 認証が完了した日時（unix time）
-	AuthTime int64 `json:"auth_time"`
-
-	// 認証が失効する日時（unix time）
-	Exp int64 `json:"exp"`
 
 	// アプリケーションで作成されたユニークなID
 	UID string `json:"uid"`
@@ -33,8 +26,6 @@ type session struct {
 func NewGetSession(sub string) *session {
 	return &session{
 		Sub:      sub,
-		AuthTime: 0,
-		Exp:      0,
 		UID:      "",
 		Provider: "",
 	}
@@ -43,15 +34,11 @@ func NewGetSession(sub string) *session {
 // func NewSaveSession: セッション情報を保存するためのコンストラクタ
 func NewSaveSession(
 	sub string,
-	authTime int64,
-	expire int64,
 	uid string,
 	provider string,
 ) *session {
 	return &session{
 		Sub:      sub,
-		AuthTime: authTime,
-		Exp:      expire,
 		UID:      uid,
 		Provider: provider,
 	}
@@ -85,9 +72,6 @@ func (s *session) Save(ctx context.Context, client *redis.Client) error {
 	if err := client.Set(ctx, key, data, time.Hour).Err(); err != nil {
 		return fmt.Errorf("failed to save session data to redis: %w", err)
 	}
-
-	// todo: 検証終了後削除
-	slog.InfoContext(ctx, "success save to redis.", slog.String("key", key))
 
 	return nil
 }

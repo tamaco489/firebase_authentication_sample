@@ -69,6 +69,7 @@ list-secrets:
 get-secret-value:
 	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/rds-cluster --region ap-northeast-1
 	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/redis-cluster --region ap-northeast-1
+	docker exec -it core-localstack awslocal secretsmanager get-secret-value --secret-id core/dev/firebase-service-account --region ap-northeast-1
 
 
 # =================================================================
@@ -110,11 +111,11 @@ redis-get-all:
 redis-clear-all:
 	docker-compose exec redis redis-cli FLUSHALL
 
-# e.g. make redis-get-by-key sub=2iSI3im4bcOFJDoT7E9QLebbU9G2
+# e.g. make redis-get-by-key sub=m3kWtKVifSPJddZe702pkvodArO2
 redis-get-by-key:
 	docker-compose exec redis redis-cli -n 0 GET session:${sub}
 
-# e.g. make redis-get-ttl-by-key sub=2iSI3im4bcOFJDoT7E9QLebbU9G2
+# e.g. make redis-get-ttl-by-key sub=m3kWtKVifSPJddZe702pkvodArO2
 redis-get-ttl-by-key:
 	docker-compose exec redis redis-cli -n 0 TTL session:${sub}
 
@@ -140,12 +141,13 @@ create-user:
 		'http://localhost:8080/core/v1/users' \
 		-H 'accept: application/json' \
 		-H 'Content-Type: application/json' \
+		-H 'Authorization: Bearer ***' \
 		-d '{"provider_type": "firebase"}' \
 		-w "\nTotal time: %{time_total}s\n"
 
 get-me:
-	curl -i -X 'GET' \
+	curl -i -sX 'GET' \
 		'http://localhost:8080/core/v1/users/me' \
 		-H 'accept: application/json' \
+		-H 'Authorization: Bearer ' \
 		-w "\nTotal time: %{time_total}s\n"
-

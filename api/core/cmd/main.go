@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,8 +15,6 @@ import (
 )
 
 func main() {
-	log.Println("[info]")
-
 	ctx := context.Background()
 	cfg, err := configuration.Load(ctx)
 	if err != nil {
