@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/configuration"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/library/firebase"
+	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/utils/ctx_utils"
 )
 
 const healthCheckEndpoint = "/core/v1/healthcheck"
@@ -46,7 +47,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// jwt検証（フォーマットが正しいかどうか、有効期限内かどうか）
+		// jwt検証（フォーマットが正しいかどうか、有効期限内かどうか、署名が正しいかどうか）
 		token, err := firebaseClient.VerifyIDToken(c.Request.Context(), idToken)
 		if err != nil {
 			// トークン検証失敗
@@ -55,6 +56,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// todo: 検証後削除
 		// 検証が成功した場合、トークンから情報を取り出して後続の処理に利用
 		slog.InfoContext(c.Request.Context(), "ID token verified",
 			slog.String("sub", token.Subject),
@@ -65,17 +67,14 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			slog.Any("firebase_info", token.Firebase),
 		)
 
-		// todo: 3. 検証済みのjwtを解析して、roleを確認
-
-		// todo: 4. 検証済みのjwtを解析して、subを取得する
-
 		// todo: 5. 取得したsubをkeyにしてredisからセッション情報を取得し、有効期限内かの判定を行う。
-
 		// todo: 6. セッションが有効期限内: MySQLにアクセスせずに、セッションからuidを取得
-
 		// todo: 7. セッションが有効期限切れ: Redisに再度セッションを保存した上でMySQLにアクセスし、subをkeyにしてuidを取得
 
-		// todo: 8. contextにuid、sub、roleを入れる
+		// todo: 8. contextにuid、sub、providerを入れる
+		if token.Firebase.SignInProvider != "" {
+			ctx_utils.SetFirebaseUID(c, token.Subject)
+		}
 
 		c.Next()
 	}
