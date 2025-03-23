@@ -10,6 +10,9 @@ function Home() {
 
   useEffect(() => {
     if (!isLoading && user) {
+      // todo: 検証後削除
+      console.log("token:", user);
+
       // ログイン済みの場合はページトップにリダイレクトさせる
       router.push('/');
     }
