@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"database/sql"
+	"errors"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -11,12 +13,17 @@ import (
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/domain/auth"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/library/firebase"
 	"github.com/tamaco489/firebase_authentication_sample/api/core/internal/utils/ctx_utils"
+
+	repository_gen_sqlc "github.com/tamaco489/firebase_authentication_sample/api/core/internal/repository/gen_sqlc"
 )
 
-const healthCheckEndpoint = "/core/v1/healthcheck"
+const (
+	healthCheckEndpoint = "/core/v1/healthcheck"
+	createUserEndpoint  = "/core/v1/users"
+)
 
 // JWTAuthMiddleware:
-func JWTAuthMiddleware(redisClient *redis.Client) gin.HandlerFunc {
+func JWTAuthMiddleware(db *sql.DB, queries repository_gen_sqlc.Queries, redisClient *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// *************** [1. Authorization Headerのチェック] ***************
 		// healthcheckの場合は検証をスキップ
@@ -58,17 +65,15 @@ func JWTAuthMiddleware(redisClient *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		// todo: 検証後削除
-		// 検証が成功した場合、トークンから情報を取り出して後続の処理に利用
-		slog.InfoContext(c.Request.Context(), "ID token verified",
-			slog.String("sub", token.Subject),
-			slog.String("uid", token.UID),
-			slog.Int64("auth_time", token.AuthTime),
-			slog.Int64("expire", token.Expires),
-			slog.Int64("issued_at", token.IssuedAt),
-			slog.Any("firebase_info", token.Firebase),
-		)
+		// ユーザ新規登録の処理
+		if c.Request.Method == http.MethodPost && c.Request.URL.Path == createUserEndpoint {
+			ctx_utils.SetFirebaseUID(c, token.Subject)
+			ctx_utils.SetFirebaseProviderType(c, ctx_utils.FirebaseProviderKey.String())
+			c.Next()
+			return
+		}
 
+		// NOTE: ユーザ新規登録以外の共通の処理
 		// 取得したsubをkeyにしてredisからセッション情報を取得
 		var uid string
 		session := auth.NewGetSession(token.Subject)
@@ -83,12 +88,33 @@ func JWTAuthMiddleware(redisClient *redis.Client) gin.HandlerFunc {
 			uid = session.UID
 		}
 
-		// todo: 7. セッションが存在していない場合: Redisに再度セッションを保存した上でMySQLにアクセスし、subをkeyにしてuidを取得
+		// セッションが存在していない場合: MySQLにアクセスし、subをkeyにしてuidを取得し、再度Redisにセッションを保存
 		if session.UID == "" {
-			// 0195b45e-a7e3-7572-b2b8-e85247c422b8
+			// MySQLにアクセスし、subをkeyにしてuidを取得
+			uid, err = queries.GetUIDByFirebaseUID(c.Request.Context(), db, token.Subject)
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				slog.ErrorContext(c.Request.Context(), "failed to fetch firebase uid by mysql", slog.String("error", err.Error()))
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
+
+			// MySQLにも存在しなかった場合は404エラーを返す
+			if uid == "" {
+				slog.ErrorContext(c.Request.Context(), "not exists user", slog.String("error", err.Error()))
+				c.AbortWithStatus(http.StatusNotFound)
+				return
+			}
+
+			// Redisに再度セッションを保存
+			newSession := auth.NewSaveSession(token.Subject, uid, ctx_utils.FirebaseProviderKey.String())
+			if err := newSession.Save(c.Request.Context(), redisClient); err != nil {
+				slog.ErrorContext(c.Request.Context(), "failed to save session to redis", slog.String("error", err.Error()))
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
 		}
 
-		// todo: 8. contextにuid、sub、providerを入れる
+		// contextにuid、sub、providerを入れる
 		if token.Firebase.SignInProvider != "" {
 			ctx_utils.SetFirebaseUID(c, token.Subject)
 			ctx_utils.SetFirebaseProviderType(c, ctx_utils.FirebaseProviderKey.String())
