@@ -32,72 +32,28 @@ const useSignUp = () => {
 
   return (
     <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundImage: 'url(/images/signup-bg.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        fontFamily: 'Pixelify Sans, sans-serif',
-        color: 'white',
-      }}
+      className="flex justify-center items-center h-screen bg-cover bg-center font-pixelify text-white"
+      style={{ backgroundImage: "url(/images/signup-bg.jpg)" }}
     >
-      <form
-        onSubmit={handleSignUp}
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: '20px',
-          borderRadius: '10px',
-          width: '300px',
-        }}
-      >
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleSignUp} className="bg-black bg-opacity-80 p-5 rounded-lg w-80">
+        {error && <p className="text-red-500">{error}</p>}
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px',
-            margin: '10px 0',
-            backgroundColor: '#333',
-            border: '1px solid #555',
-            borderRadius: '5px',
-            color: 'white',
-          }}
+          className="w-full p-2 my-2 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px',
-            margin: '10px 0',
-            backgroundColor: '#333',
-            border: '1px solid #555',
-            borderRadius: '5px',
-            color: 'white',
-          }}
+          className="w-full p-2 my-2 bg-gray-800 border border-gray-600 rounded text-white placeholder-gray-400"
         />
         <button
           type="submit"
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#008CBA',
-            border: 'none',
-            borderRadius: '5px',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s ease',
-          }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#0077b5')}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#008CBA')}
+          className="w-full p-2 bg-blue-500 hover:bg-blue-600 rounded text-white transition"
         >
           Sign Up
         </button>
