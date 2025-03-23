@@ -1,0 +1,24 @@
+package ctx_utils
+
+import "github.com/gin-gonic/gin"
+
+type authUIDKey string
+
+const (
+	firebaseUIDKey authUIDKey = "firebase_uid"
+	auth0UIDKey    authUIDKey = "auth0_uid"
+	githubUIDKey   authUIDKey = "github_uid"
+)
+
+func (ak authUIDKey) String() string {
+	return string(ak)
+}
+
+func SetFirebaseUID(ctx *gin.Context, firebaseUID string) {
+	ctx.Set(firebaseUIDKey.String(), firebaseUID)
+}
+
+func GetFirebaseUID(ctx *gin.Context) (string, bool) {
+	sub, ok := ctx.Value(firebaseUIDKey.String()).(string)
+	return sub, ok
+}
