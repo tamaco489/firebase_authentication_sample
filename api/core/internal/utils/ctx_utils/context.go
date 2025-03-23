@@ -8,6 +8,7 @@ const (
 	firebaseUIDKey authUIDKey = "firebase_uid"
 	auth0UIDKey    authUIDKey = "auth0_uid"
 	githubUIDKey   authUIDKey = "github_uid"
+	coreUIDKey     authUIDKey = "core_uid"
 )
 
 func (ak authUIDKey) String() string {
@@ -21,6 +22,15 @@ func SetFirebaseUID(ctx *gin.Context, firebaseUID string) {
 func GetFirebaseUID(ctx *gin.Context) (string, bool) {
 	sub, ok := ctx.Value(firebaseUIDKey.String()).(string)
 	return sub, ok
+}
+
+func SetCoreUID(ctx *gin.Context, uid string) {
+	ctx.Set(coreUIDKey.String(), uid)
+}
+
+func GetCoreUID(ctx *gin.Context) (string, bool) {
+	uid, ok := ctx.Value(coreUIDKey.String()).(string)
+	return uid, ok
 }
 
 type authProviderTypeKey string
