@@ -20,6 +20,7 @@ const useSignIn = () => {
     try {
       // APIリクエスト: `GET /core/v1/users/me`
       const userData = await apiClient.get('/users/me', authResult.idToken);
+      // todo: 検証後削除
       console.log('User data:', userData);
 
       // 成功したらルートページへ遷移
