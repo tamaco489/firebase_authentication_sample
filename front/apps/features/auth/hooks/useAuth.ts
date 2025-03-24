@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword, User } from '@firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, User } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 
@@ -10,6 +10,7 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
 
   const signIn = async (email: string, password: string): Promise<{ user: User; idToken: string } | null> => {
+
     setError(null);
 
     try {
@@ -27,5 +28,25 @@ export const useAuth = () => {
     }
   };
 
-  return { signIn, error };
+  const signUp = async (email: string, password: string): Promise<{ user: User; idToken: string } | null> => {
+
+    setError(null);
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+      return { user, idToken };
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred.');
+      }
+      return null;
+    }
+  };
+
+
+  return { signIn, signUp, error };
 };
