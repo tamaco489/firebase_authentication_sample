@@ -1,33 +1,37 @@
 'use client';
 
 import { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword } from '@firebase/auth';
-import { initializeApp } from '@firebase/app';
-import { FIREBASE_CONFIG } from '@/constants/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/utils/apiClient';
 
 const useSignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { signUp, error } = useAuth();
   const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+
+    const authResult = await signUp(email, password);
+    if (!authResult) return;
+
+    const body = {
+      provider_type: 'firebase',
+    };
 
     try {
-      const app = initializeApp(FIREBASE_CONFIG);
-      const auth = getAuth(app);
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/'); // サインアップ成功後に '/' へ遷移
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred.');
-      }
-    }
+      // APIリクエスト: `POST /users`
+      const userData = await apiClient.post('/users', authResult.idToken, body);
+      // todo: 検証後削除
+      console.log('User data:', userData);
+
+      // サインアップ成功後に '/' へ遷移
+      router.push('/');
+    } catch (err) {
+      console.error('API request error:', err);
+    };
   };
 
   return (
