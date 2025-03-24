@@ -31,8 +31,6 @@ const useSignUp = () => {
       console.log('[debug:2] id_token:' , idToken);
 
       // APIリクエスト設定
-      // todo: constants/api.tsで定義しているAPI_HOSTを使う。
-      // const API_HOST = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
       // リクエストヘッダーの設定
       // Bearer トークン: Firebase Authentication から取得したIDトークンを設定
@@ -63,8 +61,8 @@ const useSignUp = () => {
 
       // レスポンスのエラーチェック
       if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      };
 
       // サインアップ成功後に '/' へ遷移
       router.push('/');
@@ -73,8 +71,8 @@ const useSignUp = () => {
         setError(err.message);
       } else {
         setError('An unknown error occurred.');
-      }
-    }
+      };
+    };
   };
 
   return (

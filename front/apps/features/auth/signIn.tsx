@@ -5,6 +5,7 @@ import { getAuth, signInWithEmailAndPassword } from '@firebase/auth';
 import { initializeApp } from '@firebase/app';
 import { FIREBASE_CONFIG } from '@/constants/auth';
 import { useRouter } from 'next/navigation';
+import { API_HOST } from '@/constants/api';
 
 const useSignIn = () => {
   const [email, setEmail] = useState('');
@@ -19,15 +20,52 @@ const useSignIn = () => {
     try {
       const app = initializeApp(FIREBASE_CONFIG);
       const auth = getAuth(app);
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/'); // サインイン成功後に '/' へ遷移
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      // Firebase から ID トークンを取得
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      // todo: 検証後削除。
+      console.log('[debug:1] user info:' , user);
+      console.log('[debug:2] id_token:' , idToken);
+
+      // APIリクエスト設定
+
+      // リクエストヘッダーの設定
+      // Bearer トークン: Firebase Authentication から取得したIDトークンを設定
+      // todo: これもconstants/api.tsで定義してそれを使いまわすかたちにする。※GetMeのリクエスト完成させてからの方が早いかも
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${idToken}`,
+      };
+
+      // APIリクエスト: `GET /core/v1/users/me`
+      const response = await fetch(`${API_HOST}/users/me`, {
+        method: 'GET',
+        headers: headers,
+      });
+
+      // レスポンスの処理
+      // todo: これは不要になる想定
+      const data = await response.json();
+      console.log('user created:', data);
+
+      // レスポンスのエラーチェック
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      };
+
+      // サインイン成功後に '/' へ遷移
+      router.push('/');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('An unknown error occurred.');
-      }
-    }
+      };
+    };
   };
 
   return (
