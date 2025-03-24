@@ -1,71 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword } from '@firebase/auth';
-import { initializeApp } from '@firebase/app';
-import { FIREBASE_CONFIG } from '@/constants/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { API_HOST } from '@/constants/api';
+import { apiClient } from '@/utils/apiClient';
 
 const useSignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { signIn, error } = useAuth();
   const router = useRouter();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+
+    const authResult = await signIn(email, password);
+    if (!authResult) return;
 
     try {
-      const app = initializeApp(FIREBASE_CONFIG);
-      const auth = getAuth(app);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-      // Firebase から ID トークンを取得
-      const user = userCredential.user;
-      const idToken = await user.getIdToken();
-
-      // todo: 検証後削除。
-      console.log('[debug:1] user info:' , user);
-      console.log('[debug:2] id_token:' , idToken);
-
-      // APIリクエスト設定
-
-      // リクエストヘッダーの設定
-      // Bearer トークン: Firebase Authentication から取得したIDトークンを設定
-      // todo: これもconstants/api.tsで定義してそれを使いまわすかたちにする。※GetMeのリクエスト完成させてからの方が早いかも
-      const headers = {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: `Bearer ${idToken}`,
-      };
-
       // APIリクエスト: `GET /core/v1/users/me`
-      const response = await fetch(`${API_HOST}/users/me`, {
-        method: 'GET',
-        headers: headers,
-      });
+      const userData = await apiClient.get('/users/me', authResult.idToken);
+      console.log('User data:', userData);
 
-      // レスポンスの処理
-      // todo: これは不要になる想定
-      const data = await response.json();
-      console.log('user created:', data);
-
-      // レスポンスのエラーチェック
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-      };
-
-      // サインイン成功後に '/' へ遷移
+      // 成功したらルートページへ遷移
       router.push('/');
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred.');
-      };
-    };
+    } catch (err) {
+      console.error('API request error:', err);
+    }
   };
 
   return (
