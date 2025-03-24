@@ -17,4 +17,22 @@ export const apiClient = {
 
     return response.json();
   },
+
+  post: async (endpoint: string, token: string, body: object) => {
+    const response = await fetch(`${API_HOST}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    };
+
+    return response.json();
+  },
 };
